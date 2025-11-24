@@ -1,0 +1,315 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #eef2f7;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ===== MENÚ SUPERIOR (Base Admin) ===== */
+.menu-principal {
+    background-color: #0056b3;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 25px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.menu-lista {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-lista li {
+    margin-left: 15px;
+}
+
+.menu-lista a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.menu-lista a:hover {
+    background-color: white;
+    color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.contenido {
+    flex-grow: 1;
+    max-width: 1200px;
+    margin: 100px auto 40px auto;
+    padding: 20px;
+}
+
+.contenido h1 {
+    color: #003a7a;
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    position: relative;
+    padding-bottom: 10px;
+    text-align: left;
+}
+
+.contenido h1 i {
+    color: #ffc107; /* Color amarillo/naranja para el ícono de gestión */
+    margin-right: 10px;
+}
+
+.contenido h1::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 60px;
+    height: 4px;
+    background-color: #0056b3;
+    border-radius: 2px;
+}
+
+/* ===== LISTA DE TORNEOS (TABLA) ===== */
+.lista-torneos-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+#mensaje-carga {
+    text-align: center;
+    font-size: 1.1em;
+    color: #0056b3;
+    padding: 20px;
+}
+
+.tabla-gestion {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; 
+}
+
+.tabla-gestion th, .tabla-gestion td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-gestion thead th {
+    background-color: #0056b3;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.tabla-gestion tbody tr:hover {
+    background-color: #f6f9fc;
+}
+
+/* Estilos de Acciones (Botones) */
+.acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.btn-accion {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    white-space: nowrap; /* Evita que el texto del botón se rompa */
+}
+
+.btn-editar {
+    background-color: #ffc107; /* Amarillo */
+}
+.btn-editar:hover {
+    background-color: #e0a800;
+}
+
+.btn-eliminar {
+    background-color: #dc3545; /* Rojo */
+}
+.btn-eliminar:hover {
+    background-color: #c82333;
+}
+
+/* Estilos de Estado */
+.estado-activo {
+    color: #28a745; /* Verde */
+    font-weight: bold;
+}
+.estado-proximo {
+    color: #ffc107; /* Amarillo */
+    font-weight: bold;
+}
+.estado-finalizado {
+    color: #6c757d; /* Gris */
+    font-style: italic;
+}
+.estado-cancelado {
+    color: #dc3545; /* Rojo */
+    font-weight: bold;
+}
+
+/* ===== MODAL DE EDICIÓN ===== */
+.modal-fondo {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Fondo semi-transparente */
+    padding-top: 60px;
+}
+
+.modal-contenido {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%; 
+    max-width: 600px;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-contenido h2 {
+    color: #0056b3;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.cerrar-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.cerrar-modal:hover,
+.cerrar-modal:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.campo {
+    margin-bottom: 15px;
+}
+
+.campo label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.campo input[type="text"],
+.campo input[type="date"],
+.campo select,
+.campo textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.doble-campo {
+    display: flex;
+    gap: 20px;
+}
+.doble-campo .campo {
+    flex: 1;
+}
+
+.btn-guardar-cambios {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.btn-guardar-cambios:hover {
+    background-color: #003a7a;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background-color: #003a7a;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: auto;
+    font-size: 0.9em;
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .contenido {
+        margin-top: 80px;
+        padding: 15px;
+    }
+    .lista-torneos-container {
+        padding: 15px;
+    }
+    .doble-campo {
+        flex-direction: column;
+        gap: 0;
+    }
+    .tabla-gestion th, .tabla-gestion td {
+        padding: 8px 10px;
+    }
+    .acciones {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .btn-accion {
+        width: 100%;
+    }
+}

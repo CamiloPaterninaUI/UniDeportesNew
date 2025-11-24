@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programar Partido - Administrador</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw", // Reemplaza con tu clave real
+            authDomain: "proyecto-unibague.firebaseapp.com",
+            projectId: "proyecto-unibague",
+            storageBucket: "proyecto-unibague.firebasestorage.app",
+            messagingSenderId: "68419956684",
+            appId: "1:68419956684:web:cc4f156083423c489af769",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
+    <link rel="stylesheet" href="../estilos/admin_programar_partido.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="menu-principal">
+        <div class="logo">UniDeportes</div>
+        <ul class="menu-lista">
+            <li><a href="admin_dashboard.html">Volver al Panel</a></li>
+            <li><a href="#" id="cerrar-sesion">Cerrar Sesión</a></li>
+        </ul>
+    </nav>
+
+    <main class="contenido">
+        <h1><i class="fas fa-calendar-alt"></i> Programar Nuevo Partido</h1>
+
+        <section class="formulario-container">
+            <form id="form-programar-partido" class="formulario">
+                
+                <h2>Detalles del Encuentro</h2>
+                
+                <div class="campo">
+                    <label for="torneo">Seleccionar Torneo:</label>
+                    <select id="torneo" required>
+                        <option value="">Cargando torneos...</option>
+                        </select>
+                </div>
+                
+                <div class="doble-campo">
+                    <div class="campo">
+                        <label for="equipo-local">Equipo Local (A):</label>
+                        <input type="text" id="equipo-local" placeholder="Nombre del Equipo Local" required>
+                    </div>
+                    <div class="campo">
+                        <label for="equipo-visitante">Equipo Visitante (B):</label>
+                        <input type="text" id="equipo-visitante" placeholder="Nombre del Equipo Visitante" required>
+                    </div>
+                </div>
+
+                <div class="doble-campo">
+                    <div class="campo">
+                        <label for="fecha-partido">Fecha del Partido:</label>
+                        <input type="date" id="fecha-partido" required>
+                    </div>
+                    <div class="campo">
+                        <label for="hora-partido">Hora del Partido:</label>
+                        <input type="time" id="hora-partido" required>
+                    </div>
+                </div>
+                
+                <div class="campo">
+                    <label for="lugar-partido">Lugar Específico del Partido:</label>
+                    <input type="text" id="lugar-partido" placeholder="Ej: Cancha 2, Coliseo" required>
+                </div>
+                
+                <div class="campo">
+                    <label for="fase-partido">Fase del Torneo:</label>
+                    <select id="fase-partido" required>
+                        <option value="Fase de Grupos">Fase de Grupos</option>
+                        <option value="Octavos de Final">Octavos de Final</option>
+                        <option value="Cuartos de Final">Cuartos de Final</option>
+                        <option value="Semifinal">Semifinal</option>
+                        <option value="Final">Final</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-programar">
+                    <i class="fas fa-clock"></i> Programar Partido
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p><strong>UNIDEPORTES</strong> - Universidad de Ibagué</p>
+    </footer>
+
+    <script src="../scripts/admin_programar_partido.js"></script>
+</body>
+</html>

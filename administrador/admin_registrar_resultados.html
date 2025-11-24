@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Resultados - Administrador</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw", // Reemplaza con tu clave real
+            authDomain: "proyecto-unibague.firebaseapp.com",
+            projectId: "proyecto-unibague",
+            storageBucket: "proyecto-unibague.firebasestorage.app",
+            messagingSenderId: "68419956684",
+            appId: "1:68419956684:web:cc4f156083423c489af769",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
+    <link rel="stylesheet" href="../estilos/admin_registrar_resultados.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="menu-principal">
+        <div class="logo">UniDeportes</div>
+        <ul class="menu-lista">
+            <li><a href="admin_dashboard.html">Volver al Panel</a></li>
+            <li><a href="#" id="cerrar-sesion">Cerrar Sesión</a></li>
+        </ul>
+    </nav>
+
+    <main class="contenido">
+        <h1><i class="fas fa-trophy"></i> Registrar Resultados de Partidos</h1>
+
+        <div class="filtros-container">
+            <label for="filtro-torneo">Seleccionar Torneo:</label>
+            <select id="filtro-torneo">
+                <option value="">Cargando torneos...</option>
+            </select>
+        </div>
+
+        <section class="lista-partidos-container">
+            <h2>Partidos Pendientes de Resultado</h2>
+            <p id="mensaje-carga"><i class="fas fa-info-circle"></i> Seleccione un torneo para ver sus partidos.</p>
+            
+            <table class="tabla-gestion">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora / Sede</th>
+                        <th>Equipos</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-partidos-cuerpo">
+                    </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="modal-marcador" class="modal-fondo">
+        <div class="modal-contenido">
+            <span class="cerrar-modal">&times;</span>
+            <h2><i class="fas fa-scoreboard"></i> Registrar Marcador</h2>
+            
+            <form id="form-marcador">
+                <input type="hidden" id="partido-id">
+
+                <div class="info-partido">
+                    <p><strong>Torneo:</strong> <span id="torneo-nombre-modal"></span></p>
+                    <p><strong>Encuentro:</strong> <span id="equipos-modal"></span></p>
+                </div>
+
+                <div class="registro-marcador">
+                    <div class="equipo-marcador">
+                        <label id="label-equipo-a"></label>
+                        <input type="number" id="marcador-a" min="0" required value="0">
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="equipo-marcador">
+                        <label id="label-equipo-b"></label>
+                        <input type="number" id="marcador-b" min="0" required value="0">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-guardar-resultado">
+                    <i class="fas fa-save"></i> Guardar Resultado
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>UNIDEPORTES</strong> - Universidad de Ibagué</p>
+    </footer>
+
+    <script src="../scripts/admin_registrar_resultados.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+<script>
+  // **TU NUEVA CONFIGURACIÓN CORRECTA**
+  const firebaseConfig = {
+    apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+    authDomain: "proyecto-unibague.firebaseapp.com",
+    projectId: "proyecto-unibague",
+    storageBucket: "proyecto-unibague.firebasestorage.app",
+    messagingSenderId: "68419956684",
+    appId: "1:68419956684:web:cc4f156083423c489af769",
+    // measurementId: "G-7CRB91JWB9" // No es necesario para Auth/Firestore
+  };
+
+  // Inicialización de la aplicación y creación de referencias globales
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inicio de Sesión - UniDeportes</title>
+  <link rel="stylesheet" href="../estilos/estilos_estudiante.css" />
+</head>
+
+<body>
+  <nav class="menu-principal">
+    <div class="logo">UniDeportes</div>
+    <ul class="menu-lista">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="registro_estudiante.html">Registrarse</a></li>
+      <li><a href="login_estudiante.html" class="activo">Iniciar Sesión</a></li>
+    </ul>
+  </nav>
+
+  <main class="contenido">
+    <h1>Inicio de Sesión de Estudiantes</h1>
+
+    <section class="formulario">
+    <form id="form-login" autocomplete="off">
+        <div class="campo">
+            <label for="correo">Correo institucional o Gmail:</label>
+            <input type="email" id="correo" name="correo" placeholder="ejemplo@estudiantesunibague.edu.co" required />
+        </div>
+
+        <div class="campo">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+
+        <div class="campo" id="campo-admin-clave" style="display: none;">
+            <label for="admin-clave">Clave de Administrador:</label>
+            <input type="password" id="admin-clave" name="admin-clave" placeholder="Ingresa la clave de administrador" />
+        </div>
+        <button type="submit" class="btn-registrar">Iniciar Sesión</button>
+    </form>
+
+    <div class="separador">o</div>
+    <button type="button" id="btn-google-login" class="btn-google-auth">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="Google Logo" />
+        Iniciar Sesión con Google
+    </button>
+</section>
+  </main>
+
+  <footer>
+    <p><strong>UNIDEPORTES</strong> | Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="../js/login_estudiante.js"></script>
+</body>
+</html>

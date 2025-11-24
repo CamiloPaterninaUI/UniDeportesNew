@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - UniTorneos</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        // Asegúrate de usar tu configuración real aquí si la cambiaste
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+            authDomain: "proyecto-unibague.firebaseapp.com",
+            projectId: "proyecto-unibague",
+            storageBucket: "proyecto-unibague.firebasestorage.app",
+            messagingSenderId: "68419956684",
+            appId: "1:68419956684:web:cc4f156083423c489af769",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
+    <link rel="stylesheet" href="../estilos/admin_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="menu-principal">
+        <div class="logo">UniDeportes (Admin)</div>
+        <ul class="menu-lista">
+            <li><a href="#" id="cerrar-sesion">Cerrar Sesión</a></li>
+        </ul>
+    </nav>
+
+    <main class="contenido">
+        <h1>Bienvenido/a al Panel de Administración, <span id="admin-nombre">...</span></h1>
+
+        <section class="tarjetas-container">
+            
+            <a href="admin_crear_torneo.html" class="tarjeta tarjeta-crear">
+                <div class="icono"><i class="fas fa-trophy"></i></div>
+                <h2>Crear Nuevo Torneo</h2>
+                <p>Configura y lanza una nueva competencia deportiva.</p>
+            </a>
+                <a href="admin_registrar_resultados.html" class="tarjeta tarjeta-resultados">
+                <div class="icono"><i class="fas fa-trophy"></i></div>
+                <h2>Registrar Resultados</h2>
+                <p>Ingresa los marcadores de los partidos finalizados.</p>
+            </a>
+            <a href="admin_gestionar_torneos.html" class="tarjeta tarjeta-gestionar">
+                <div class="icono"><i class="fas fa-cog"></i></div>
+                <h2>Gestionar Torneos</h2>
+                <p>Edita, elimina o visualiza los torneos existentes.</p>
+            </a>
+            <a href="admin_ver_clasificaciones.html" class="tarjeta tarjeta-clasificaciones">
+                <div class="icono"><i class="fas fa-list-ol"></i></div>
+                <h2>Ver Clasificaciones</h2>
+                <p>Consulta las tablas de posiciones actualizadas por torneo.</p>
+            </a>
+            <a href="admin_programar_partido.html" class="tarjeta tarjeta-programar">
+                <div class="icono"><i class="fas fa-calendar-alt"></i></div>
+                <h2>Programar Partidos</h2>
+                <p>Define fechas, horas y lugares para los encuentros de los torneos.</p>
+            </a>
+            <a href="admin_gestionar_inscripciones.html" class="tarjeta tarjeta-inscripciones">
+                <div class="icono"><i class="fas fa-clipboard-check"></i></div>
+                <h2>Gestionar Inscripciones</h2>
+                 <p>Revisa, aprueba o rechaza las solicitudes de equipos.</p>
+            </a>
+            <a href="admin_gestionar_resultados.html" class="tarjeta tarjeta-resultados">
+                <div class="icono"><i class="fas fa-clipboard-list"></i></div>
+                <h2>Registrar Resultados</h2>
+                <p>Ingresa los marcadores y actualiza las tablas de posiciones.</p>
+                <span class="etiqueta-proximo">Próximamente</span>
+            </a>
+
+        </section>
+
+        <section class="estadisticas">
+            <h2>Resumen Rápido</h2>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h3>Torneos Activos</h3>
+                    <p id="stat-torneos-activos"><i class="fas fa-spinner"></i></p>
+                </div>
+                <div class="stat-box">
+                    <h3>Partidos Programados</h3>
+                    <p id="stat-partidos-prog"><i class="fas fa-spinner"></i></p>
+                </div>
+                <div class="stat-box">
+                    <h3>Usuarios Registrados</h3>
+                    <p id="stat-usuarios"><i class="fas fa-spinner"></i></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p><strong>UNIDEPORTES</strong> - Universidad de Ibagué</p>
+    </footer>
+
+    <script src="../scripts/admin_dashboard.js"></script>
+</body>
+</html>

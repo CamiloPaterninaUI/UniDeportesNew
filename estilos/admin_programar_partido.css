@@ -1,0 +1,198 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #eef2f7;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ===== MENÚ SUPERIOR (Base Admin) ===== */
+.menu-principal {
+    background-color: #0056b3;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 25px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.menu-lista {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-lista li {
+    margin-left: 15px;
+}
+
+.menu-lista a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.menu-lista a:hover {
+    background-color: white;
+    color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.contenido {
+    flex-grow: 1;
+    max-width: 700px; /* Ancho cómodo para el formulario */
+    margin: 100px auto 40px auto;
+    padding: 20px;
+}
+
+.contenido h1 {
+    color: #003a7a;
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    position: relative;
+    padding-bottom: 10px;
+    text-align: left;
+}
+
+.contenido h1 i {
+    color: #20c997; /* Color verde/cian para el ícono de calendario */
+    margin-right: 10px;
+}
+
+.contenido h1::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 60px;
+    height: 4px;
+    background-color: #0056b3;
+    border-radius: 2px;
+}
+
+/* ===== FORMULARIO ===== */
+.formulario-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.formulario h2 {
+    color: #0056b3;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+.formulario h2:first-of-type {
+    margin-top: 0;
+}
+
+.campo {
+    margin-bottom: 20px;
+}
+
+.campo label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.campo input[type="text"],
+.campo input[type="date"],
+.campo input[type="time"],
+.campo select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.campo input:focus,
+.campo select:focus {
+    border-color: #0056b3;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 86, 179, 0.2);
+}
+
+.doble-campo {
+    display: flex;
+    gap: 20px;
+}
+.doble-campo .campo {
+    flex: 1;
+}
+
+.btn-programar {
+    background-color: #ffc107; /* Amarillo/Naranja para programar */
+    color: #333;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.btn-programar:hover {
+    background-color: #e0a800;
+    color: white;
+}
+
+.btn-programar i {
+    margin-right: 10px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background-color: #003a7a;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: auto;
+    font-size: 0.9em;
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .contenido {
+        padding: 15px;
+        margin-top: 80px;
+    }
+    .formulario-container {
+        padding: 20px;
+    }
+    .doble-campo {
+        flex-direction: column;
+        gap: 0;
+    }
+}

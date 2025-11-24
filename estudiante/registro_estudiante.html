@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+    <script>
+        // **TU CONFIGURACIÓN DE FIREBASE**
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+            authDomain: "proyecto-unibague.firebaseapp.com",
+            projectId: "proyecto-unibague",
+            storageBucket: "proyecto-unibague.firebasestorage.app",
+            messagingSenderId: "68419956684",
+            appId: "1:68419956684:web:cc4f156083423c489af769",
+        };
+
+        // Inicialización de la aplicación y creación de referencias globales
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro de Estudiante - UniDeportes</title>
+    <link rel="stylesheet" href="../estilos/estilos_estudiante.css" />
+
+    <style>
+        /* ===== ANIMACIONES ===== */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        h1 {
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        .seccion-formulario {
+            opacity: 0;
+            animation: fadeInUp 0.9s ease-out forwards;
+            animation-delay: 0.4s;
+        }
+
+        .btn-registrar {
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        .btn-registrar:hover {
+            background-color: #004aad;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #004aad;
+            box-shadow: 0 0 8px rgba(0, 74, 173, 0.4);
+            transition: 0.3s ease;
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav class="menu-principal">
+        <div class="logo">UniDeportes</div>
+        <ul class="menu-lista">
+            <li><a href="../index.html">Inicio</a></li>
+            <li><a href="panel_estudiante.html">Panel Estudiante</a></li>
+            <li><a href="login_estudiante.html">Iniciar Sesión</a></li>
+        </ul>
+    </nav>
+
+    <main class="contenido">
+        <h1>Registro de Estudiante</h1>
+
+        <section class="seccion-formulario">
+            <form id="form-registro" class="formulario">
+                <div class="campo">
+                    <label for="nombre">Nombres y Apellidos:</label>
+                    <input type="text" id="nombre" name="nombre" required />
+                </div>
+
+                <div class="campo">
+                    <label for="correo">Correo institucional o Gmail:</label>
+                    <input type="email" id="correo" name="correo" placeholder="ejemplo@estudiantesunibague.edu.co" required />
+                </div>
+
+                <div class="campo">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" minlength="6" required />
+                </div>
+
+                <div class="campo">
+                    <label for="codigo">Código estudiantil:</label>
+                    <input type="text" id="codigo" name="codigo" required />
+                </div>
+
+                <div class="campo">
+                    <label for="edad">Edad:</label>
+                    <input type="number" id="edad" name="edad" min="15" max="80" required />
+                </div>
+
+                <div class="campo">
+                    <label for="tipo_sangre">Tipo de sangre:</label>
+                    <select id="tipo_sangre" name="tipo_sangre" required>
+                        <option value="">Seleccione...</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" required />
+                </div>
+
+                <div class="campo">
+                    <label for="emergencia">Contacto de emergencia:</label>
+                    <input type="text" id="emergencia" name="emergencia" required />
+                </div>
+
+                <div class="campo">
+                    <label for="activo">¿Activo en la Universidad?</label>
+                    <select id="activo" name="activo" required>
+                        <option value="">Seleccione...</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div class="botones">
+                    <button type="submit" class="btn-registrar">Registrar</button>
+                </div>
+            </form>
+        </section>
+
+
+    </main>
+
+    <footer>
+        <p><strong>UNIDEPORTES</strong> - Universidad de Ibagué</p>
+    </footer>
+
+    <script src="../scripts/registro_estudiante.js"></script>
+
+</body>
+</html>
