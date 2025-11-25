@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =======================================================
     auth.onAuthStateChanged(async (user) => {
         if (!user) {
-            window.location.href = "login_estudiante.html";
+            window.location.href = "login.html";
             return;
         }
         
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!doc.exists || doc.data().rol !== "admin") {
                 alert("Acceso denegado. Se requiere rol de administrador.");
                 await auth.signOut();
-                window.location.href = "login_estudiante.html";
+                window.location.href = "login.html";
             }
             // Si es admin, carga torneos y configura listeners
             cargarTorneosDisponibles();
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error("Error al verificar rol:", error);
             await auth.signOut();
-            window.location.href = "login_estudiante.html";
+            window.location.href = "login.html";
         }
     });
 
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await auth.signOut();
             alert("Sesión de administrador cerrada.");
-            window.location.href = "login_estudiante.html";
+            window.location.href = "login.html";
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
             alert("Ocurrió un error al cerrar la sesión.");

@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const user = auth.currentUser;
         if (!user) {
             alert("❌ Debe iniciar sesión para poder inscribir un equipo.");
-            window.location.href = "login_estudiante.html";
+            window.location.href = "login.html";
             return;
         }
 

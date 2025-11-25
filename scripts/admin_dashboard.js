@@ -1,85 +1,79 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const adminNombreSpan = document.getElementById("admin-nombre");
-    const cerrarSesionBtn = document.getElementById("cerrar-sesion");
-    const statTorneosActivos = document.getElementById("stat-torneos-activos");
-    const statPartidosProg = document.getElementById("stat-partidos-prog");
-    const statUsuarios = document.getElementById("stat-usuarios");
+    // Verificar si Firebase está cargado (auth y db vienen del HTML)
+    if (typeof firebase === 'undefined' || typeof auth === 'undefined' || typeof db === 'undefined') {
+        alert("🚨 Error: Firebase no está cargado. Asegúrate de incluir el SDK en el HTML.");
+        return;
+    }
 
-    // =======================================================
-    // 1. AUTENTICACIÓN Y SEGURIDAD DE ACCESO
-    // =======================================================
+    const nombreAdminSpan = document.getElementById('admin-nombre');
+    const cerrarSesionBtn = document.getElementById('cerrar-sesion');
+
+    // ===============================================
+    // 1. AUTENTICACIÓN Y AUTORIZACIÓN (El Pilar de la Seguridad)
+    // ===============================================
+    // Esta función se dispara cada vez que el estado de autenticación cambia
     auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            // No logueado, redirigir al login
-            window.location.href = "login_estudiante.html"; 
-            return;
-        }
+        if (user) {
+            // El usuario está logueado, ahora verificar su rol en Firestore
+            try {
+                const doc = await db.collection("usuarios").doc(user.email).get();
 
-        try {
-            // Verificar si el usuario es administrador
-            const doc = await db.collection("usuarios").doc(user.email).get();
-            if (!doc.exists || doc.data().rol !== "admin") {
-                alert("Acceso denegado. Se requiere rol de administrador.");
+                if (doc.exists && doc.data().rol === 'admin') {
+                    // 🎉 Es un administrador: Cargar datos
+                    const userData = doc.data();
+                    
+                    // 1. Mostrar el nombre del administrador
+                    nombreAdminSpan.textContent = userData.nombre || user.email;
+                    
+                    // 2. Cargar datos de resumen
+                    // Esta función se puede expandir para cargar estadísticas reales
+                    cargarEstadisticasPlaceholder(); 
+
+                } else {
+                    // No es admin o no tiene perfil: Redirigir inmediatamente
+                    alert("🚫 Acceso denegado. No tienes permisos de administrador.");
+                    await auth.signOut();
+                    window.location.href = "../estudiante/login.html";
+                }
+
+            } catch (error) {
+                console.error("Error al obtener datos del usuario:", error);
+                alert("Hubo un error al verificar su perfil. Intente de nuevo.");
                 await auth.signOut();
-                window.location.href = "login_estudiante.html";
-                return;
+                window.location.href = "../estudiante/login.html";
             }
-
-            // Si es admin: mostrar nombre y cargar estadísticas
-            const adminData = doc.data();
-            const nombreMostrar = adminData.nombre || user.displayName || user.email;
-            adminNombreSpan.textContent = nombreMostrar.split(' ')[0]; // Mostrar solo el primer nombre
-            
-            cargarEstadisticas();
-
-        } catch (error) {
-            console.error("Error al verificar rol o cargar datos:", error);
-            await auth.signOut();
-            window.location.href = "login_estudiante.html";
+        } else {
+            // No hay usuario logueado: Redirigir al login
+            alert("🔒 Debe iniciar sesión para acceder al panel de administración.");
+            window.location.href = "../estudiante/login.html";
         }
     });
 
-    // Cierre de sesión
-    cerrarSesionBtn.addEventListener("click", async (e) => {
+    // ===============================================
+    // 2. CERRAR SESIÓN
+    // ===============================================
+    cerrarSesionBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         try {
             await auth.signOut();
-            alert("Sesión de administrador cerrada.");
-            window.location.href = "login_estudiante.html";
+            alert("👋 Sesión cerrada correctamente.");
+            window.location.href = "../estudiante/login.html"; // Redirige al login
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
-            alert("Ocurrió un error al cerrar la sesión.");
+            alert("Hubo un error al cerrar la sesión.");
         }
     });
-    
-    // =======================================================
-    // 2. CARGAR ESTADÍSTICAS DEL SISTEMA
-    // =======================================================
-    async function cargarEstadisticas() {
-        try {
-            // 1. Torneos Activos
-            const torneosActivosSnapshot = await db.collection("torneos")
-                .where("estado", "==", "activo")
-                .get();
-            statTorneosActivos.textContent = torneosActivosSnapshot.size;
 
-            // 2. Partidos Programados (que no estén finalizados)
-            const partidosProgramadosSnapshot = await db.collection("partidos")
-                .where("estado", "==", "programado")
-                .get();
-            statPartidosProg.textContent = partidosProgramadosSnapshot.size;
 
-            // 3. Usuarios Registrados (Estudiantes + Admin)
-            const usuariosSnapshot = await db.collection("usuarios").get();
-            statUsuarios.textContent = usuariosSnapshot.size;
-
-        } catch (error) {
-            console.error("Error al cargar estadísticas:", error);
-            // Mostrar error en lugar del número
-            statTorneosActivos.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-            statPartidosProg.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-            statUsuarios.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-        }
+    // ===============================================
+    // 3. FUNCIÓN DE PRUEBA PARA ESTADÍSTICAS
+    // TODO: Reemplazar con llamadas reales a Firestore
+    // ===============================================
+    function cargarEstadisticasPlaceholder() {
+        // Simulación de carga de datos
+        document.getElementById("stat-torneos-activos").textContent = "5";
+        document.getElementById("stat-partidos-prog").textContent = "24";
+        document.getElementById("stat-usuarios").textContent = "150";
     }
 
 });

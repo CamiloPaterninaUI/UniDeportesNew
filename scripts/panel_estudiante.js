@@ -112,20 +112,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Si el usuario existe en Auth pero no en la BD o no es estudiante
                     alert("Acceso denegado. No se encontró su perfil de estudiante o su rol es incorrecto.");
                     await auth.signOut(); // Cerrar sesión
-                    window.location.href = "login_estudiante.html";
+                    window.location.href = "login.html";
                 }
 
             } catch (error) {
                 console.error("Error al cargar datos de Firestore:", error);
                 alert("Ocurrió un error al cargar su perfil. Intente nuevamente.");
                 await auth.signOut();
-                window.location.href = "login_estudiante.html";
+                window.location.href = "login.html";
             }
 
         } else {
             // No hay usuario activo, redirigir al login
             alert("Debe iniciar sesión para acceder a su panel.");
-            window.location.href = "login_estudiante.html";
+            window.location.href = "login.html";
         }
     });
 
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await auth.signOut();
             alert("Sesión cerrada correctamente.");
-            window.location.href = "login_estudiante.html";
+            window.location.href = "login.html";
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
             alert("Ocurrió un error al cerrar la sesión.");
