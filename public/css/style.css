@@ -1,0 +1,349 @@
+/* ===========================
+   ESTILOS GLOBALES NEUMÓRFICOS
+   =========================== */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: #e6ecf5; /* Fondo gris azulado suave */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ======================
+   NAVBAR ELEGANTE
+   ====================== */
+
+.navbar {
+  width: 100%;
+  padding: 18px 0;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #3b4455;
+  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+/* Hover neutro */
+.navbar a:hover {
+  background: #f1f4f9;
+  box-shadow: inset 3px 3px 8px #c8d0e0, inset -3px -3px 8px #ffffff;
+}
+
+/* El botón que sí lleva color */
+.nav-primary {
+  background: #3e63dd;
+  color: white !important;
+  box-shadow: 0px 4px 16px rgba(62, 99, 221, 0.3);
+}
+.nav-primary:hover {
+  background: #2c4fbf;
+}
+
+/* ======================
+   FORMULARIOS
+   ====================== */
+
+.form-container {
+  width: 380px;
+  margin-top: 40px;
+  padding: 40px 35px;
+  background: #e6ecf5;
+  border-radius: 28px;
+  box-shadow: -8px -8px 20px #ffffff, 8px 8px 20px #c8d0e0;
+  text-align: center;
+}
+
+.form-container h2 {
+  color: #2c3345;
+  margin-bottom: 10px;
+  font-size: 26px;
+}
+
+.form-container p {
+  color: #737d90;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+/* Inputs estilo neumórfico */
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border: none;
+  outline: none;
+  background: #e6ecf5;
+  border-radius: 16px;
+  box-shadow: inset 3px 3px 8px #c8d0e0, inset -3px -3px 8px #ffffff;
+  font-size: 15px;
+}
+
+/* Botón principal (solo uno por página) */
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  background: #3e63dd;
+  color: white;
+  box-shadow: 0px 4px 16px rgba(62, 99, 221, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  background: #2c4fbf;
+}
+
+/* Botón neutro */
+.btn-secondary {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  background: #e6ecf5;
+  color: #3b4455;
+  box-shadow: -3px -3px 8px #ffffff, 3px 3px 8px #c8d0e0;
+  transition: all 0.25s ease;
+}
+
+.btn-secondary:hover {
+  box-shadow: inset 3px 3px 8px #c8d0e0, inset -3px -3px 8px #ffffff;
+}
+/* ================================
+   CARRUSEL / HERO
+================================ */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+}
+
+.hero img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .7s ease-in-out;
+}
+
+.hero img.active {
+  opacity: 1;
+}
+
+/* ================================
+   GALERÍA
+================================ */
+.galeria {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  padding: 20px 0;
+}
+
+
+.galeria img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  transition: transform .3s;
+}
+
+.galeria img:hover {
+  transform: scale(1.07);
+}
+
+/* ================================
+   NAVBAR FIJO (si lo usas)
+================================ */
+.navbar a.active {
+  font-weight: bold;
+  color: #0056ff;
+}
+/* SELECT estilo botón moderno */
+.select-field {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  outline: none;
+  border-radius: 16px;
+  background: #e6ecf5;
+  font-size: 15px;
+  color: #3b4455;
+  cursor: pointer;
+  box-shadow: inset 3px 3px 8px #c8d0e0, inset -3px -3px 8px #ffffff;
+  transition: all 0.25s ease;
+}
+
+.select-field:hover {
+  box-shadow: -3px -3px 8px #ffffff, 3px 3px 8px #c8d0e0;
+}
+/* ================================
+   TÍTULO PRINCIPAL DEL INDEX
+================================ */
+main h1 {
+  text-align: center;
+  margin-top: 35px;
+  margin-bottom: 25px;
+  font-size: 36px;
+  font-weight: 800;
+  color: #2c3345;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+/* ================================
+   TARJETAS / PANEL DE INFORMACIÓN
+================================ */
+.card {
+  width: 90%;
+  max-width: 950px;
+  background: #e6ecf5;
+  margin: 35px auto;
+  padding: 30px 35px;
+  border-radius: 28px;
+  box-shadow: -8px -8px 20px #ffffff, 8px 8px 20px #c8d0e0;
+}
+
+.card h2 {
+  text-align: center;
+  margin-bottom: 22px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #2c3345;
+}
+
+
+/* ================================
+   TABLAS ESTILO PRO
+================================ */
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.card thead tr {
+  background: #dce3f0;
+}
+
+.card th {
+  padding: 14px;
+  font-weight: 600;
+  color: #2c3345;
+  text-align: center;
+}
+
+.card td {
+  padding: 15px;
+  background: #f7f9fc;
+  text-align: center;
+  border-radius: 12px;
+  color: #3b4455;
+}
+
+
+/* Interlineado profesional */
+.card tbody tr {
+  margin-bottom: 10px;
+  display: table-row;
+}
+
+.card tbody tr td {
+  box-shadow: inset 3px 3px 8px #c8d0e0, inset -3px -3px 8px #ffffff;
+}
+
+
+/* Estado sin datos */
+.sin-datos {
+  padding: 18px;
+  margin-top: 10px;
+  background: #eef1f7;
+  border-radius: 14px;
+  text-align: center;
+  color: #7a8497;
+  font-style: italic;
+  font-size: 15px;
+  box-shadow: inset 3px 3px 8px #c8d0e0, inset -3px -3px 8px #ffffff;
+}
+/* Footer */
+.footer {
+  margin-top: 60px;
+  background: #f5f5f5;
+  border-top: 1px solid #ddd;
+  padding: 40px 20px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.footer-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.footer-list {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-list li {
+  margin-bottom: 6px;
+}
+
+.footer-link {
+  color: #003366;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-link:hover {
+  opacity: 0.7;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  color: #666;
+  font-size: 0.9rem;
+}

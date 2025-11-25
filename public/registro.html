@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro - UniTorneos</title>
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <!-- CSS GLOBAL -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEzhCIemzhVUQdivmhTUy7OD2P8J75XTM",
+      authDomain: "auth.unideportes.site",
+      projectId: "unideportes-60806",
+      storageBucket: "unideportes-60806.appspot.com",
+      messagingSenderId: "392808702508",
+      appId: "1:392808702508:web:fc3f13fea671438fc4a789"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+
+<body>
+
+<!-- NAVBAR GLOBAL -->
+<nav class="navbar">
+  <a href="index.html">INICIO</a>
+  <a href="registro.html" class="nav-primary">REGISTRARSE</a>
+  <a href="login.html">INICIAR SESIÓN</a>
+</nav>
+
+<!-- CONTENEDOR FORMULARIO -->
+<div class="form-container">
+
+  <h2>Crear cuenta</h2>
+  <p>Regístrate para participar en los torneos</p>
+
+  <form id="registerForm">
+
+    <div class="input-group">
+      <label>Nombre completo</label>
+      <input type="text" id="nombre" class="input-field" required>
+    </div>
+
+    <div class="input-group">
+      <label>Correo</label>
+      <input type="email" id="correo" class="input-field" required>
+    </div>
+
+    <div class="input-group">
+      <label>Contraseña</label>
+      <input type="password" id="password" class="input-field" required>
+    </div>
+
+    <!-- SELECTOR DE ROL (ESTILO BONITO) -->
+    <div class="role-selector">
+      <button type="button" id="rol-est" class="btn-primary-outline">Estudiante</button>
+      <button type="button" id="rol-adm" class="btn-primary-outline">Administrador</button>
+    </div>
+
+    <input type="hidden" id="rol" value="estudiante">
+
+    <!-- CLAVE SECRETA -->
+    <div class="input-group" id="claveAdminBox" style="display: none;">
+      <label>Clave secreta de administrador</label>
+      <input type="password" id="claveAdmin" class="input-field">
+    </div>
+
+    <button type="submit" class="btn-primary">Registrarme</button>
+
+  </form>
+</div>
+
+<script>
+  const opcionEst = document.getElementById("rol-est");
+  const opcionAdm = document.getElementById("rol-adm");
+  const rolHidden = document.getElementById("rol");
+  const claveAdminBox = document.getElementById("claveAdminBox");
+
+  function activarRol(botonActivo, botonInactivo, tipo) {
+    rolHidden.value = tipo;
+
+    botonActivo.classList.add("btn-primary");
+    botonActivo.classList.remove("btn-primary-outline");
+
+    botonInactivo.classList.remove("btn-primary");
+    botonInactivo.classList.add("btn-primary-outline");
+
+    claveAdminBox.style.display = tipo === "admin" ? "block" : "none";
+  }
+
+  // Eventos
+  opcionEst.addEventListener("click", () => activarRol(opcionEst, opcionAdm, "estudiante"));
+  opcionAdm.addEventListener("click", () => activarRol(opcionAdm, opcionEst, "admin"));
+
+  // Valor inicial
+  activarRol(opcionEst, opcionAdm, "estudiante");
+</script>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h3>Sobre el proyecto</h3>
+      <p>Sistema web desarrollado para la gestión de torneos estudiantiles de la Universidad de Ibagué.</p>
+    </div>
+
+    <div class="footer-section">
+      <h3>Repositorio oficial</h3>
+      <a href="https://github.com/CamiloPaterninaUI/UniDeportesNew.git" target="_blank" class="footer-link">
+        GitHub – UniTorneos
+      </a>
+    </div>
+
+    <div class="footer-section">
+      <h3>Redes del creador</h3>
+      <ul class="footer-list">
+        <li>Instagram: <a href="https://instagram.com/patter_cam" target="_blank" class="footer-link">patter_cam</a></li>
+        <li>TikTok: <a href="#" target="_blank" class="footer-link">Capitan 11</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h3>Equipo de desarrollo</h3>
+      <ul class="footer-list">
+        <li>Camilo Paternina</li>
+        <li>Stiven Camacho</li>
+        <li>Alejandro Silva</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>UniTorneos – Universidad de Ibagué • 2025</p>
+  </div>
+</footer>
+
+</body>
+</html>

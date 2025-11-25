@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniTorneos</title>
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <!-- CSS GLOBAL -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEzhCIemzhVUQdivmhTUy7OD2P8J75XTM",
+      authDomain: "auth.unideportes.site",
+      projectId: "unideportes-60806",
+      storageBucket: "unideportes-60806.appspot.com",
+      messagingSenderId: "392808702508",
+      appId: "1:392808702508:web:fc3f13fea671438fc4a789"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="index.html">INICIO</a>
+    <a href="registro.html">REGISTRARSE</a>
+    <a href="login.html">INICIAR SESIÓN</a>
+</nav>
+
+<header class="hero" id="hero">
+    <img src="imagenes/carrusel1.png" class="active">
+    <img src="imagenes/carrusel2.jpg">
+    <img src="imagenes/carrusel3.jpg">
+</header>
+
+<main>
+    <h1>Pasión por el deporte universitario</h1>
+
+    <div class="card">
+        <h2>Torneos en Curso</h2>
+        <table>
+            <tr><td class="sin-datos">No hay torneos activos.</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Próximos Encuentros</h2>
+        <table>
+            <tr><td class="sin-datos">No hay partidos programados.</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Ganadores del Torneo Anterior</h2>
+
+        <div class="galeria">
+            <img src="imagenes/ganadores/ganador1.jpg">
+            <img src="imagenes/ganadores/ganador2.jpg">
+            <img src="imagenes/ganadores/ganador3.jpg">
+        </div>
+    </div>
+</main>
+
+<script>
+    const imgs = document.querySelectorAll("#hero img");
+    let i = 0;
+
+    setInterval(() => {
+        imgs[i].classList.remove("active");
+        i = (i + 1) % imgs.length;
+        imgs[i].classList.add("active");
+    }, 3500);
+</script>
+
+<!-- FOOTER NUEVO ELEGANTE -->
+<footer class="footer">
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h3>Sobre el proyecto</h3>
+      <p>Sistema web desarrollado para la gestión de torneos estudiantiles de la Universidad de Ibagué.  
+      Creado como proyecto académico orientado a mejorar la organización, inscripción y seguimiento de eventos deportivos.</p>
+    </div>
+
+    <div class="footer-section">
+      <h3>Repositorio oficial</h3>
+      <a href="https://github.com/CamiloPaterninaUI/UniDeportesNew.git" target="_blank" class="footer-link">
+        GitHub – UniTorneos
+      </a>
+    </div>
+
+    <div class="footer-section">
+      <h3>Redes del creador</h3>
+      <ul class="footer-list">
+        <li>Instagram: <a href="https://instagram.com/patter_cam" target="_blank" class="footer-link">patter_cam</a></li>
+        <li>TikTok: <a href="#" target="_blank" class="footer-link">Capitan 11</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h3>Equipo de desarrollo</h3>
+      <ul class="footer-list">
+        <li>Camilo Paternina</li>
+        <li>Stiven Camacho</li>
+        <li>Alejandro Silva</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>UniTorneos – Universidad de Ibagué • <span id="fecha"></span></p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("fecha").textContent =
+    new Date().getFullYear();
+</script>
+
+</body>
+</html>
