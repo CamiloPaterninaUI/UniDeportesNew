@@ -17,13 +17,14 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBEzhCIemzhVUQdivmhTUy7OD2P8J75XTM",
-      authDomain: "auth.unideportes.site",
-      projectId: "unideportes-60806",
-      storageBucket: "unideportes-60806.appspot.com",
-      messagingSenderId: "392808702508",
-      appId: "1:392808702508:web:fc3f13fea671438fc4a789"
+  const firebaseConfig = {
+  apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+  authDomain: "proyecto-unibague.firebaseapp.com",
+  projectId: "proyecto-unibague",
+  storageBucket: "proyecto-unibague.firebasestorage.app",
+  messagingSenderId: "68419956684",
+  appId: "1:68419956684:web:cc4f156083423c489af769",
+  measurementId: "G-7CRB91JWB9"
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -33,38 +34,90 @@
 
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar">
     <a href="index.html">INICIO</a>
-    <a href="registro.html">REGISTRARSE</a>
-    <a href="login.html">INICIAR SESIÓN</a>
+    <ul id="nav-auth">
+        <li><a href="login.html">Iniciar Sesión</a></li>
+        <li><a href="registro.html">Registrarse</a></li>
+    </ul>
 </nav>
 
+<!-- SECCIÓN INFORMATIVA PRINCIPAL -->
+<section class="info-section">
+  <div class="info-container">
+    <h2 class="info-title">Bienvenido a UniDeportes</h2>
+    <p class="info-text">
+      UniDeportes es tu plataforma central para todo lo relacionado con el deporte en nuestra universidad. 
+      Aquí podrás mantenerte al día con los torneos en curso, consultar la programación de los próximos 
+      encuentros y descubrir los magníficos escenarios donde se llevan a cabo las competencias.
+    </p>
+    <h3 class="info-subtitle">¿Quiénes pueden usar UniDeportes?</h3>
+    <ul class="info-list">
+      <li><strong>Estudiantes:</strong> Participa en torneos, sigue a tus equipos favoritos y mantente informado sobre los eventos deportivos.</li>
+      <li><strong>Administrativos:</strong> Organiza eventos, gestiona torneos y promueve la actividad deportiva en la universidad.</li>
+      <li><strong>Invitados:</strong> Consulta la agenda deportiva y conoce más sobre la vida activa en nuestra institución 
+        <span style="color:#555;">(Nota: Algunas funcionalidades pueden requerir registro).</span>
+      </li>
+    </ul>
+    <p class="info-text">
+      Para comenzar, regístrate o inicia sesión. ¡No te pierdas la emoción del deporte universitario!
+    </p>
+  </div>
+</section>
+
+<!-- CARRUSEL -->
 <header class="hero" id="hero">
     <img src="imagenes/carrusel1.png" class="active">
     <img src="imagenes/carrusel2.jpg">
     <img src="imagenes/carrusel3.jpg">
 </header>
 
+<!-- MAIN -->
 <main>
     <h1>Pasión por el deporte universitario</h1>
 
+    <!-- TORNEOS EN CURSO -->
     <div class="card">
         <h2>Torneos en Curso</h2>
-        <table>
-            <tr><td class="sin-datos">No hay torneos activos.</td></tr>
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Deporte</th>
+                    <th>Sede</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="5" class="sin-datos">Cargando torneos...</td></tr>
+            </tbody>
         </table>
     </div>
 
+    <!-- PRÓXIMOS ENCUENTROS -->
     <div class="card">
         <h2>Próximos Encuentros</h2>
-        <table>
-            <tr><td class="sin-datos">No hay partidos programados.</td></tr>
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>Equipo Local</th>
+                    <th></th>
+                    <th>Equipo Visitante</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="5" class="sin-datos">Cargando encuentros...</td></tr>
+            </tbody>
         </table>
     </div>
 
+    <!-- GANADORES -->
     <div class="card">
         <h2>Ganadores del Torneo Anterior</h2>
-
         <div class="galeria">
             <img src="imagenes/ganadores/ganador1.jpg">
             <img src="imagenes/ganadores/ganador2.jpg">
@@ -73,21 +126,9 @@
     </div>
 </main>
 
-<script>
-    const imgs = document.querySelectorAll("#hero img");
-    let i = 0;
-
-    setInterval(() => {
-        imgs[i].classList.remove("active");
-        i = (i + 1) % imgs.length;
-        imgs[i].classList.add("active");
-    }, 3500);
-</script>
-
-<!-- FOOTER NUEVO ELEGANTE -->
+<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-container">
-
     <div class="footer-section">
       <h3>Sobre el proyecto</h3>
       <p>Sistema web desarrollado para la gestión de torneos estudiantiles de la Universidad de Ibagué.  
@@ -117,7 +158,6 @@
         <li>Alejandro Silva</li>
       </ul>
     </div>
-
   </div>
 
   <div class="footer-bottom">
@@ -125,9 +165,21 @@
   </div>
 </footer>
 
+<!-- SCRIPTS -->
+<script src="scripts/index.js"></script>
+
 <script>
-  document.getElementById("fecha").textContent =
-    new Date().getFullYear();
+  // Carrusel
+  const imgs = document.querySelectorAll("#hero img");
+  let i = 0;
+  setInterval(() => {
+      imgs[i].classList.remove("active");
+      i = (i + 1) % imgs.length;
+      imgs[i].classList.add("active");
+  }, 3500);
+
+  // Fecha en el footer
+  document.getElementById("fecha").textContent = new Date().getFullYear();
 </script>
 
 </body>

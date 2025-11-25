@@ -5,24 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionar Inscripciones - Administrador</title>
 
+    <!-- Firebase v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw", // Reemplaza con tu clave real
-            authDomain: "proyecto-unibague.firebaseapp.com",
-            projectId: "proyecto-unibague",
-            storageBucket: "proyecto-unibague.firebasestorage.app",
-            messagingSenderId: "68419956684",
-            appId: "1:68419956684:web:cc4f156083423c489af769",
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-    </script>
 
-    <link rel="stylesheet" href="../estilos/estilo.css">
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -54,6 +43,7 @@
                 <thead>
                     <tr>
                         <th>Torneo</th>
+                        <th>Costo</th>
                         <th>Equipo</th>
                         <th>Deporte</th>
                         <th>Representante</th>
@@ -74,10 +64,10 @@
             <h2><i class="fas fa-info-circle"></i> Detalle de Inscripción</h2>
             <p><strong>Equipo:</strong> <span id="equipo-modal"></span></p>
             <p><strong>Torneo:</strong> <span id="torneo-modal"></span></p>
-            
+            <p><strong>Costo:</strong> $<span id="costo-modal"></span></p>
+
             <h3>Jugadores (<span id="cantidad-jugadores">0</span>)</h3>
-            <div id="lista-jugadores-modal" class="lista-jugadores">
-                </div>
+            <div id="lista-jugadores-modal" class="lista-jugadores"></div>
             
             <div class="acciones-modal">
                 <button id="btn-aprobar" class="btn-accion btn-aprobar"><i class="fas fa-check"></i> Aprobar</button>

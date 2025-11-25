@@ -1,142 +1,62 @@
-// La CLAVE MAESTRA DE SEGURIDAD de administrador (Debe coincidir con la de registro.js)
-const CLAVE_SECRETA_ADMIN = "admin2025"; 
+// login.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Se asume que 'auth' y 'db' son variables globales definidas en login.html
-// Redefinimos las referencias para asegurar que estén disponibles en el scope del script
-const db = firebase.firestore();
-const auth = firebase.auth();
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+    authDomain: "proyecto-unibague.firebaseapp.com",
+    projectId: "proyecto-unibague",
+    storageBucket: "proyecto-unibague.firebasestorage.app",
+    messagingSenderId: "68419956684",
+    appId: "1:68419956684:web:cc4f156083423c489af769",
+    measurementId: "G-7CRB91JWB9"
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-    const formLogin = document.getElementById('form-login');
-    const adminClaveInput = document.getElementById('admin-clave');
-    
-    // Función para mostrar mensajes de forma segura (modal)
-    function mostrarMensaje(mensaje) {
-        // Creamos o encontramos el modal de mensajes
-        let modalFondo = document.getElementById('modal-mensaje-fondo');
-        if (!modalFondo) {
-            modalFondo = document.createElement('div');
-            modalFondo.id = 'modal-mensaje-fondo';
-            modalFondo.className = 'modal-fondo';
-            modalFondo.innerHTML = `
-                <div class="modal-contenido">
-                    <p id="modal-mensaje-texto"></p>
-                    <button id="btn-cerrar-modal" class="btn-cerrar">Aceptar</button>
-                </div>
-            `;
-            document.body.appendChild(modalFondo);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Modal de mensajes
+const modalFondo = document.getElementById('modalMensaje');
+const modalTexto = document.getElementById('modalTexto');
+const cerrarModal = document.getElementById('cerrarModal');
+cerrarModal.addEventListener('click', () => modalFondo.classList.remove('visible'));
+
+// Formulario de login
+const form = document.getElementById('loginForm');
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const correo = document.getElementById('correo').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        // Login con Firebase
+        const cred = await signInWithEmailAndPassword(auth, correo, password);
+        const user = cred.user;
+
+        // Obtener rol desde Firestore
+        const docRef = doc(db, 'usuarios', user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            throw new Error("Usuario no registrado en la base de datos.");
         }
-        const modalTexto = document.getElementById('modal-mensaje-texto');
-        const btnCerrar = document.getElementById('btn-cerrar-modal');
 
-        modalTexto.textContent = mensaje;
+        const rol = docSnap.data().rol || 'estudiante';
+
+        // Redirección según rol
+        if (rol === 'administrador') {
+            window.location.href = './administrador/admin_dashboard.html';
+        } else {
+            window.location.href = './estudiante/estudiante_dashboard.html';
+        }
+
+    } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        modalTexto.textContent = error.message;
         modalFondo.classList.add('visible');
-        btnCerrar.onclick = () => {
-            modalFondo.classList.remove('visible');
-        };
     }
-
-    // Función principal de inicio de sesión
-    if (formLogin) {
-        formLogin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const correo = document.getElementById('correo').value.trim();
-            const password = document.getElementById('password').value;
-            // Obtenemos la clave de seguridad del campo, incluso si está vacío
-            const claveAdmin = adminClaveInput ? adminClaveInput.value.trim() : ''; 
-
-            try {
-                // 1. Autenticar usuario con Firebase Auth
-                const userCredential = await auth.signInWithEmailAndPassword(correo, password);
-                const user = userCredential.user;
-
-                // 2. Obtener datos del usuario de Firestore para determinar el rol
-                const userDoc = await db.collection('usuarios').doc(user.uid).get();
-
-                if (!userDoc.exists) {
-                    await auth.signOut(); // Si no hay rol, cerrar sesión por seguridad
-                    return mostrarMensaje("Error: No se encontró la información del rol de usuario. Contacte a soporte.");
-                }
-
-                const userData = userDoc.data();
-                const rol = userData.rol;
-
-                // 3. Lógica de validación por rol y clave de seguridad
-                if (rol === 'administrador') {
-                    // Si es administrador, la clave de seguridad es OBLIGATORIA
-                    if (claveAdmin !== CLAVE_SECRETA_ADMIN) {
-                        await auth.signOut();
-                        return mostrarMensaje("Acceso Denegado: Contraseña correcta, pero clave de seguridad de administrador incorrecta.");
-                    }
-                    mostrarMensaje("¡Inicio de sesión como Administrador exitoso!");
-                    setTimeout(() => {
-                        window.location.href = 'administrador/admin_dashboard.html';
-                    }, 1000);
-                } 
-                
-                else if (rol === 'estudiante') {
-                    // Si es estudiante, si ingresó una clave, advertirle.
-                    if (claveAdmin) {
-                        mostrarMensaje("Advertencia: No es necesario ingresar clave de seguridad para cuentas de estudiante. Iniciando sesión...");
-                        // No cerramos sesión, solo ignoramos la clave y procedemos
-                    }
-                    mostrarMensaje("¡Inicio de sesión como Estudiante exitoso!");
-                    setTimeout(() => {
-                        window.location.href = 'estudiante/estudiante_dashboard.html';
-                    }, 1000);
-                } 
-                
-                else {
-                    // Rol desconocido
-                    await auth.signOut();
-                    mostrarMensaje(`Error: Rol de usuario desconocido (${rol}). Acceso restringido.`);
-                }
-
-            } catch (error) {
-                console.error("Error al iniciar sesión:", error);
-                let mensajeError = "Error desconocido al iniciar sesión.";
-
-                // Manejo de errores comunes de Firebase Auth
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        mensajeError = "Credenciales inválidas (Correo o Contraseña incorrectos).";
-                        break;
-                    case 'auth/invalid-email':
-                        mensajeError = "Formato de correo electrónico inválido.";
-                        break;
-                    case 'auth/user-disabled':
-                        mensajeError = "Tu cuenta ha sido deshabilitada.";
-                        break;
-                    default:
-                        mensajeError = `Error: ${error.message}`;
-                        break;
-                }
-                mostrarMensaje(mensajeError);
-            }
-        });
-    }
-
-    // Redirección si ya está autenticado
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // Intentamos obtener el rol y redirigir
-            db.collection('usuarios').doc(user.uid).get().then(doc => {
-                if (doc.exists) {
-                    const rol = doc.data().rol;
-                    if (rol === 'administrador') {
-                        window.location.href = 'administrador/admin_dashboard.html';
-                    } else if (rol === 'estudiante') {
-                        window.location.href = 'estudiante/estudiante_dashboard.html';
-                    }
-                } else {
-                    // Si no tiene documento de rol, cerrar sesión por seguridad
-                    auth.signOut();
-                }
-            }).catch(error => {
-                console.error("Error de redirección en onAuthStateChanged:", error);
-            });
-        }
-    });
 });

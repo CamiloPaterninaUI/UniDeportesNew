@@ -1,97 +1,139 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-
-<script>
-  // **TU NUEVA CONFIGURACIÓN CORRECTA**
-  const firebaseConfig = {
-    apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
-    authDomain: "proyecto-unibague.firebaseapp.com",
-    projectId: "proyecto-unibague",
-    storageBucket: "proyecto-unibague.firebasestorage.app",
-    messagingSenderId: "68419956684",
-    appId: "1:68419956684:web:cc4f156083423c489af769",
-    // measurementId: "G-7CRB91JWB9" // No es necesario para Auth/Firestore
-  };
-
-  // Inicialización de la aplicación y creación de referencias globales
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inscripción a Torneos - UniDeportes</title>
-  <link rel="stylesheet" href="../estilos/estilo.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscripción a Torneo</title>
+<link rel="stylesheet" href="../css/style.css">
 </head>
-
 <body>
-  <!-- Menú principal -->
-  <nav class="menu-principal">
+<nav class="menu-principal">
     <div class="logo">UniDeportes</div>
-    <ul class="menu-lista" id="menu-lista">
-      <li><a href="../index.html">Inicio</a></li>
-      <li><a href="panel_estudiante.html">Estudiante</a></li>
-      <li><a href="inscripcion.html" class="activo">Inscripción</a></li>
+    <ul class="menu-lista">
+        <li><a href="estudiante_dashboard.html">Volver al Dashboard</a></li>
+        <li><a href="#" id="cerrar-sesion">Cerrar Sesión</a></li>
     </ul>
-  </nav>
+</nav>
 
-  <main class="contenido">
-    <h1>Inscripción al Torneo</h1>
+<main class="contenido">
+    <h1>Inscribirse a Torneo</h1>
+    <div id="info-torneo">Cargando torneo...</div>
+    <div id="msg-inscripcion"></div>
+    <button id="inscribirse-btn" class="btn-principal" style="display:none;">Inscribirse</button>
+</main>
 
-    <section class="formulario-inscripcion">
-      <form id="form-inscripcion">
-        <div class="campo">
-          <label for="torneo">Seleccione el torneo:</label>
-          <select id="torneo" name="torneo" required>
-            <option value="">Seleccione...</option>
-            <option value="Fútbol Sala">Fútbol Sala</option>
-          </select>
-        </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js"; 
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-        <div class="campo">
-          <label for="nombre_equipo">Nombre del equipo:</label>
-          <input type="text" id="nombre_equipo" name="nombre_equipo" required />
-        </div>
+const firebaseConfig = {
+  apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+  authDomain: "proyecto-unibague.firebaseapp.com",
+  projectId: "proyecto-unibague",
+  storageBucket: "proyecto-unibague.firebasestorage.app",
+  messagingSenderId: "68419956684",
+  appId: "1:68419956684:web:cc4f156083423c489af769"
+};
 
-        <div class="campo">
-          <label for="representante">Nombre del representante:</label>
-          <input type="text" id="representante" name="representante" required />
-        </div>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-        <div class="campo">
-          <label for="correo_representante">Correo del representante:</label>
-          <input type="email" id="correo_representante" name="correo_representante" required />
-        </div>
+let usuarioActual = null;
+let equipoExistente = null;
 
-        <div class="campo">
-          <label for="telefono_equipo">Teléfono de contacto:</label>
-          <input type="tel" id="telefono_equipo" name="telefono_equipo" required />
-        </div>
+// ===========================
+// Obtener torneoId desde URL
+// ===========================
+const params = new URLSearchParams(window.location.search);
+const torneoId = params.get('torneoId');
 
-        <h2>Jugadores del equipo</h2>
-        <div id="lista-jugadores"></div>
+// ===========================
+// Protege la ruta y carga datos
+// ===========================
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = '../login.html';
+  usuarioActual = user;
 
-        <button type="button" id="btn-agregar-jugador" class="btn-agregar">+ Agregar jugador</button>
+  const docRef = doc(db, 'usuarios', user.uid);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists() || docSnap.data().rol !== 'estudiante') {
+    await signOut(auth);
+    return window.location.href = '../login.html';
+  }
 
-        <div class="botones">
-          <button type="submit" class="btn-inscribir">Enviar Inscripción</button>
-        </div>
-      </form>
-    </section>
-  </main>
+  await cargarEquipo();
+  await cargarTorneo();
+});
 
-  <footer>
-    <p><strong>UNIDEPORTES</strong> - Universidad de Ibagué</p>
-  </footer>
+// ===========================
+// Cerrar sesión
+// ===========================
+document.getElementById('cerrar-sesion').addEventListener('click', async () => {
+  await signOut(auth);
+  window.location.href = '../login.html';
+});
 
-  <script src="../scripts/inscripcion.js"></script>
+// ===========================
+// Cargar equipo
+// ===========================
+async function cargarEquipo() {
+  const q = query(collection(db, 'equipos'), where('creador', '==', usuarioActual.uid));
+  const snapshot = await getDocs(q);
+  if (!snapshot.empty) {
+    equipoExistente = snapshot.docs[0].data();
+    equipoExistente.id = snapshot.docs[0].id;
+  }
+}
+
+// ===========================
+// Cargar datos del torneo
+// ===========================
+async function cargarTorneo() {
+  const infoDiv = document.getElementById('info-torneo');
+  const btn = document.getElementById('inscribirse-btn');
+
+  if (!torneoId) {
+    infoDiv.textContent = 'Torneo no especificado.';
+    return;
+  }
+
+  const docRef = doc(db, 'torneos', torneoId);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    infoDiv.textContent = 'Torneo no encontrado.';
+    return;
+  }
+
+  const torneo = docSnap.data();
+  infoDiv.innerHTML = `<strong>${torneo.nombre}</strong><br>
+                       Deporte: ${torneo.deporte}<br>
+                       Fecha inicio: ${torneo.fechaInicio?.toDate ? torneo.fechaInicio.toDate().toLocaleDateString('es-CO') : torneo.fechaInicio || 'Pendiente'}<br>
+                       Estado: ${torneo.estado}`;
+
+  if (equipoExistente) {
+    btn.style.display = 'inline-block';
+    btn.addEventListener('click', async () => {
+      try {
+        await addDoc(collection(db, 'inscripciones'), {
+          estudianteUid: usuarioActual.uid,
+          equipoId: equipoExistente.id,
+          torneoId: torneoId,
+          fechaInscripcion: new Date()
+        });
+        document.getElementById('msg-inscripcion').textContent = 'Inscripción exitosa!';
+        btn.disabled = true;
+      } catch(e) {
+        console.error(e);
+        document.getElementById('msg-inscripcion').textContent = 'Error al inscribirse.';
+      }
+    });
+  } else {
+    document.getElementById('msg-inscripcion').textContent = 'Debes crear un equipo primero.';
+  }
+}
+</script>
 </body>
 </html>

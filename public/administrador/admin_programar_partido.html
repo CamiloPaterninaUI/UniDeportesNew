@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw", // Reemplaza con tu clave real
+            apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
             authDomain: "proyecto-unibague.firebaseapp.com",
             projectId: "proyecto-unibague",
             storageBucket: "proyecto-unibague.firebasestorage.app",
@@ -22,7 +22,7 @@
         const db = firebase.firestore();
     </script>
 
-    <link rel="stylesheet" href="../estilos/estilo.css">
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -46,17 +46,21 @@
                     <label for="torneo">Seleccionar Torneo:</label>
                     <select id="torneo" required>
                         <option value="">Cargando torneos...</option>
-                        </select>
+                    </select>
                 </div>
                 
                 <div class="doble-campo">
                     <div class="campo">
-                        <label for="equipo-local">Equipo Local (A):</label>
-                        <input type="text" id="equipo-local" placeholder="Nombre del Equipo Local" required>
+                        <label for="equipo-a">Equipo Local (A):</label>
+                        <select id="equipo-a" required>
+                            <option value="">Seleccione un equipo</option>
+                        </select>
                     </div>
                     <div class="campo">
-                        <label for="equipo-visitante">Equipo Visitante (B):</label>
-                        <input type="text" id="equipo-visitante" placeholder="Nombre del Equipo Visitante" required>
+                        <label for="equipo-b">Equipo Visitante (B):</label>
+                        <select id="equipo-b" required>
+                            <option value="">Seleccione un equipo</option>
+                        </select>
                     </div>
                 </div>
 

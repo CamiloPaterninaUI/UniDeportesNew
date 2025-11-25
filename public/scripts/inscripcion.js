@@ -1,171 +1,114 @@
-let contadorJugadores = 0;
-let torneoSeleccionadoId = null;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-auth.onAuthStateChanged(user => {
-    if (!user) {
-        window.location.href = './login.html';
-        return;
-    }
-    
-    // Obtener ID del torneo de la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    torneoSeleccionadoId = urlParams.get('torneoId');
+const firebaseConfig = {
+  apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+  authDomain: "proyecto-unibague.firebaseapp.com",
+  projectId: "proyecto-unibague",
+  storageBucket: "proyecto-unibague.firebasestorage.app",
+  messagingSenderId: "68419956684",
+  appId: "1:68419956684:web:cc4f156083423c489af769",
+  measurementId: "G-7CRB91JWB9"
+};
 
-    if (torneoSeleccionadoId) {
-        cargarInfoTorneo(torneoSeleccionadoId);
-    } else {
-        alert('Error: No se ha especificado un torneo para la inscripción.');
-        window.location.href = './estudiante_dashboard.html';
-    }
-    
-    cargarDatosRepresentante(user.uid);
-    agregarCampoJugador(); // Agregar al menos el primer campo de jugador
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let usuarioActual = null;
+let equipoExistente = null;
+let torneoIdSeleccionado = null;
+
+// ===========================
+// Detectar el estudiante y cargar su equipo
+// ===========================
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = '/login.html';
+  usuarioActual = user;
+
+  // Verificar rol
+  const docRef = doc(db, 'usuarios', user.uid);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists() || docSnap.data().rol !== 'estudiante') {
+    await signOut(auth);
+    return window.location.href = '/login.html';
+  }
+
+  // Cargar equipo del estudiante
+  await cargarEquipo();
+
+  // Obtener torneoId de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  torneoIdSeleccionado = urlParams.get('torneoId');
+
+  if (torneoIdSeleccionado) {
+    document.getElementById('torneo-id').textContent = `Inscribiéndote en el torneo: ${torneoIdSeleccionado}`;
+  }
 });
 
-// Cargar la información del torneo seleccionado
-async function cargarInfoTorneo(torneoId) {
-    try {
-        const doc = await db.collection('torneos').doc(torneoId).get();
-        if (doc.exists) {
-            const torneoData = doc.data();
-            document.getElementById('torneo_nombre_display').textContent = torneoData.nombre; // Para el título/display
-            document.getElementById('deporte_display').textContent = torneoData.deporte; // Para el título/display
-            document.getElementById('deporte').value = torneoData.deporte; // Guardar el valor real
-        } else {
-            alert('El torneo especificado no existe o no está disponible.');
-            window.location.href = './estudiante_dashboard.html';
-        }
-    } catch (e) {
-        console.error('Error cargando torneo:', e);
-    }
-}
-
-// Cargar datos del representante (usuario actual)
-async function cargarDatosRepresentante(uid) {
-    try {
-        const doc = await db.collection('usuarios').doc(uid).get();
-        if (doc.exists) {
-            const userData = doc.data();
-            document.getElementById('representante').value = userData.nombre || '';
-            document.getElementById('correo_representante').value = userData.correo || '';
-            document.getElementById('telefono_equipo').value = userData.telefono || ''; 
-            
-            // Guardamos el UID del representante
-            document.getElementById('representante').setAttribute('data-uid', uid);
-        }
-    } catch (e) {
-        console.error('Error cargando datos de representante:', e);
-    }
-}
-
-
-// 1. Agregar campo de jugador dinámicamente
-document.getElementById('btn-agregar-jugador').addEventListener('click', (e) => {
-    e.preventDefault();
-    agregarCampoJugador();
+// ===========================
+// Cerrar sesión
+// ===========================
+document.getElementById('cerrar-sesion').addEventListener('click', async () => {
+  await signOut(auth);
+  window.location.href = '/login.html';
 });
 
-function agregarCampoJugador() {
-    contadorJugadores++;
-    const listaJugadoresDiv = document.getElementById('lista-jugadores');
+// ===========================
+// Cargar equipo del estudiante
+// ===========================
+async function cargarEquipo() {
+  const contenedor = document.getElementById('info-equipo');
+  contenedor.innerHTML = 'Cargando equipo...';
 
-    const jugadorDiv = document.createElement('div');
-    jugadorDiv.className = 'jugador-item';
-    jugadorDiv.id = `jugador-${contadorJugadores}`;
-    jugadorDiv.innerHTML = `
-        <h4>Jugador #${contadorJugadores}</h4>
-        <div class="doble-campo">
-            <div class="campo">
-                <label for="jugador_nombre_${contadorJugadores}">Nombre:</label>
-                <input type="text" id="jugador_nombre_${contadorJugadores}" required />
-            </div>
-            <div class="campo">
-                <label for="jugador_doc_${contadorJugadores}">Documento/ID:</label>
-                <input type="text" id="jugador_doc_${contadorJugadores}" required />
-            </div>
-        </div>
-        <div class="doble-campo">
-            <div class="campo">
-                <label for="jugador_carrera_${contadorJugadores}">Carrera:</label>
-                <input type="text" id="jugador_carrera_${contadorJugadores}" required />
-            </div>
-            <div class="campo">
-                <label for="jugador_tel_${contadorJugadores}">Teléfono (Opcional):</label>
-                <input type="tel" id="jugador_tel_${contadorJugadores}" />
-            </div>
-        </div>
-        <button type="button" class="btn-remover" data-id="${contadorJugadores}">- Remover Jugador</button>
-        <hr>
-    `;
+  try {
+    const q = query(collection(db, 'equipos'), where('creador', '==', usuarioActual.uid));
+    const snapshot = await getDocs(q);
 
-    listaJugadoresDiv.appendChild(jugadorDiv);
-    
-    // Agregar listener al botón de remover
-    jugadorDiv.querySelector('.btn-remover').addEventListener('click', (e) => {
-        e.preventDefault();
-        const idToRemove = e.target.getAttribute('data-id');
-        document.getElementById(`jugador-${idToRemove}`).remove();
-    });
+    if (snapshot.empty) {
+      contenedor.textContent = 'No tienes equipos creados';
+      return;
+    }
+
+    equipoExistente = snapshot.docs[0].data();
+    equipoExistente.id = snapshot.docs[0].id;
+
+    contenedor.textContent = `Equipo: ${equipoExistente.nombre}`;
+  } catch(e) {
+    console.error(e);
+    contenedor.textContent = 'Error cargando equipo';
+  }
 }
 
-// 2. Manejar el envío del formulario de inscripción
-document.getElementById('form-inscripcion').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// ===========================
+// Inscribirse al torneo
+// ===========================
+document.getElementById('btn-inscribirse').addEventListener('click', async () => {
+  const msg = document.getElementById('msg-inscripcion');
 
-    const btnSubmit = document.querySelector('.btn-inscribir');
-    btnSubmit.textContent = 'Enviando...';
-    btnSubmit.disabled = true;
-    
-    // Recolectar datos de los jugadores
-    const jugadoresInscritos = [];
-    const jugadorItems = document.querySelectorAll('.jugador-item');
+  if (!equipoExistente) {
+    msg.textContent = 'Debes tener un equipo para inscribirte.';
+    return;
+  }
 
-    jugadorItems.forEach(item => {
-        const id = item.id.split('-')[1];
-        jugadoresInscritos.push({
-            nombre: document.getElementById(`jugador_nombre_${id}`).value.trim(),
-            documento: document.getElementById(`jugador_doc_${id}`).value.trim(),
-            carrera: document.getElementById(`jugador_carrera_${id}`).value.trim(),
-            telefono: document.getElementById(`jugador_tel_${id}`).value.trim()
-        });
+  if (!torneoIdSeleccionado) {
+    msg.textContent = 'No se ha seleccionado ningún torneo.';
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, 'inscripciones'), {
+      estudianteUid: usuarioActual.uid,
+      equipoId: equipoExistente.id,
+      torneoId: torneoIdSeleccionado,
+      fechaInscripcion: new Date()
     });
 
-    if (jugadoresInscritos.length < 1) { 
-        alert('Debes agregar al menos 1 jugador para el equipo.');
-        btnSubmit.textContent = 'Enviar Inscripción';
-        btnSubmit.disabled = false;
-        return;
-    }
-
-    const nuevaInscripcion = {
-        torneoId: torneoSeleccionadoId,
-        torneoNombre: document.getElementById('torneo_nombre_display').textContent,
-        deporte: document.getElementById('deporte').value, // El valor cargado en la función cargarInfoTorneo
-        equipo: document.getElementById('nombre_equipo').value.trim(),
-        representante: document.getElementById('representante').value.trim(),
-        representanteUid: document.getElementById('representante').getAttribute('data-uid'),
-        correoRepresentante: document.getElementById('correo_representante').value.trim(),
-        telefonoEquipo: document.getElementById('telefono_equipo').value.trim(),
-        jugadores: jugadoresInscritos,
-        estado: 'pendiente', 
-        fechaInscripcion: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    if (!torneoSeleccionadoId) {
-         alert('Error crítico: El ID del torneo no fue encontrado.');
-         btnSubmit.textContent = 'Enviar Inscripción';
-         btnSubmit.disabled = false;
-         return;
-    }
-
-    try {
-        await db.collection('inscripciones').add(nuevaInscripcion);
-        alert('✅ ¡Inscripción enviada con éxito! Esperando aprobación del administrador.');
-        window.location.href = './estudiante_dashboard.html'; 
-    } catch (error) {
-        console.error('Error al enviar inscripción:', error);
-        alert(`❌ Error al enviar la inscripción: ${error.message}`);
-        btnSubmit.textContent = 'Enviar Inscripción';
-        btnSubmit.disabled = false;
-    }
+    msg.textContent = 'Inscripción realizada con éxito';
+    document.getElementById('btn-inscribirse').disabled = true;
+  } catch(e) {
+    console.error(e);
+    msg.textContent = 'Error al inscribirse';
+  }
 });

@@ -1,41 +1,54 @@
+// Configuración Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+    authDomain: "proyecto-unibague.firebaseapp.com",
+    projectId: "proyecto-unibague",
+    storageBucket: "proyecto-unibague.firebasestorage.app",
+    messagingSenderId: "68419956684",
+    appId: "1:68419956684:web:cc4f156083423c489af769"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 let inscripcionSeleccionadaId = null;
 
+// Verificar estado de autenticación
 auth.onAuthStateChanged(user => {
-    if (!user) {
-        window.location.href = './login.html';
-        return;
-    }
-    cargarInscripciones('pendiente'); // Cargar pendientes por defecto
+    if (!user) return window.location.href = './login.html';
+    cargarInscripciones('pendiente'); // Por defecto pendientes
 });
 
-// 1. Cargar y listar inscripciones (filtro por estado)
+// Filtrar inscripciones
+document.getElementById('filtro-estado').addEventListener('change', (e) => {
+    cargarInscripciones(e.target.value);
+});
+
+// 1. Cargar y listar inscripciones
 function cargarInscripciones(estadoFiltro) {
     const listaCuerpo = document.getElementById('lista-inscripciones-cuerpo');
-    listaCuerpo.innerHTML = '<tr><td colspan="7" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando inscripciones...</td></tr>';
+    listaCuerpo.innerHTML = '<tr><td colspan="8" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr>';
 
-    // Usamos onSnapshot para ver los cambios en tiempo real
     let query = db.collection('inscripciones').orderBy('fechaInscripcion', 'asc');
-    
-    if (estadoFiltro !== 'todos') {
-        query = query.where('estado', '==', estadoFiltro);
-    }
-    
+    if (estadoFiltro !== 'todos') query = query.where('estado', '==', estadoFiltro);
+
     query.onSnapshot(snapshot => {
         listaCuerpo.innerHTML = '';
         if (snapshot.empty) {
-            listaCuerpo.innerHTML = '<tr><td colspan="7" style="text-align: center;">No hay inscripciones para este estado.</td></tr>';
+            listaCuerpo.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay inscripciones.</td></tr>';
             return;
         }
 
         snapshot.forEach(doc => {
             const inscripcion = doc.data();
             const fila = listaCuerpo.insertRow();
-            
-            const estadoDisplay = inscripcion.estado.charAt(0).toUpperCase() + inscripcion.estado.slice(1); 
+
+            const estadoDisplay = inscripcion.estado.charAt(0).toUpperCase() + inscripcion.estado.slice(1);
 
             fila.innerHTML = `
-                <td>${inscripcion.equipo}</td>
                 <td>${inscripcion.torneoNombre}</td>
+                <td>$${inscripcion.costo || 0}</td>
+                <td>${inscripcion.equipo}</td>
                 <td>${inscripcion.deporte}</td>
                 <td>${inscripcion.representante}</td>
                 <td>${inscripcion.jugadores ? inscripcion.jugadores.length : 0}</td>
@@ -49,82 +62,71 @@ function cargarInscripciones(estadoFiltro) {
         });
     }, error => {
         console.error("Error cargando inscripciones:", error);
-        listaCuerpo.innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Error al cargar las inscripciones.</td></tr>';
+        listaCuerpo.innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;">Error al cargar inscripciones.</td></tr>';
     });
 }
 
-// 2. Mostrar detalle de inscripción en el modal
+// 2. Mostrar detalle de inscripción
 function mostrarDetalle(id, inscripcion) {
     inscripcionSeleccionadaId = id;
     document.getElementById('equipo-modal').textContent = inscripcion.equipo;
     document.getElementById('torneo-modal').textContent = inscripcion.torneoNombre;
+    document.getElementById('costo-modal').textContent = inscripcion.costo || 0;
     document.getElementById('cantidad-jugadores').textContent = inscripcion.jugadores ? inscripcion.jugadores.length : 0;
-    
-    // Mostrar botones de acción solo si está pendiente
-    const accionesModal = document.querySelector('.acciones-modal');
-    if (inscripcion.estado === 'pendiente') {
-         accionesModal.style.display = 'flex';
-    } else {
-         accionesModal.style.display = 'none';
-    }
 
+    const accionesModal = document.querySelector('.acciones-modal');
+    accionesModal.style.display = (inscripcion.estado === 'pendiente') ? 'flex' : 'none';
 
     const listaJugadoresDiv = document.getElementById('lista-jugadores-modal');
-    if (inscripcion.jugadores) {
-        listaJugadoresDiv.innerHTML = inscripcion.jugadores.map((jugador, index) =>
-            `<p><strong>${index + 1}. ${jugador.nombre}</strong> (ID: ${jugador.documento}) - ${jugador.carrera}</p>`
-        ).join('');
-    } else {
-         listaJugadoresDiv.innerHTML = '<p>No se encontraron datos de jugadores.</p>';
-    }
-    
+    listaJugadoresDiv.innerHTML = inscripcion.jugadores ? inscripcion.jugadores.map((j, i) =>
+        `<p><strong>${i + 1}. ${j.nombre}</strong> (ID: ${j.documento}) - ${j.carrera}</p>`
+    ).join('') : '<p>No hay jugadores.</p>';
+
     document.getElementById('modal-detalle').style.display = 'flex';
 }
 
-// 3. Manejar la acción de Aprobar
+// 3. Aprobar inscripción
 document.getElementById('btn-aprobar').addEventListener('click', async () => {
     if (!inscripcionSeleccionadaId) return;
-
     try {
         await db.collection('inscripciones').doc(inscripcionSeleccionadaId).update({
             estado: 'aprobado',
-            fechaRespuesta: firebase.firestore.FieldValue.serverTimestamp(),
-            // Se puede agregar aquí el UID del administrador que aprobó: aprobadoPorUid: auth.currentUser.uid
+            fechaRespuesta: firebase.firestore.FieldValue.serverTimestamp()
         });
-
-        alert(`Inscripción aprobada: ${document.getElementById('equipo-modal').textContent}.`);
+        alert(`Inscripción aprobada: ${document.getElementById('equipo-modal').textContent}`);
         document.getElementById('modal-detalle').style.display = 'none';
         inscripcionSeleccionadaId = null;
-        // La lista se actualizará automáticamente gracias a onSnapshot
     } catch (error) {
         console.error('Error al aprobar inscripción:', error);
-        alert('Error al aprobar la inscripción. Revisa la consola.');
+        alert('Error al aprobar la inscripción.');
     }
 });
 
-// 4. Manejar la acción de Rechazar
+// 4. Rechazar inscripción
 document.getElementById('btn-rechazar').addEventListener('click', async () => {
     if (!inscripcionSeleccionadaId) return;
-
-    if (!confirm('¿Está seguro de rechazar esta inscripción?')) return;
-
+    if (!confirm('¿Desea rechazar esta inscripción?')) return;
     try {
         await db.collection('inscripciones').doc(inscripcionSeleccionadaId).update({
             estado: 'rechazado',
-            fechaRespuesta: firebase.firestore.FieldValue.serverTimestamp(),
+            fechaRespuesta: firebase.firestore.FieldValue.serverTimestamp()
         });
-
-        alert(`Inscripción rechazada: ${document.getElementById('equipo-modal').textContent}.`);
+        alert(`Inscripción rechazada: ${document.getElementById('equipo-modal').textContent}`);
         document.getElementById('modal-detalle').style.display = 'none';
         inscripcionSeleccionadaId = null;
     } catch (error) {
         console.error('Error al rechazar inscripción:', error);
-        alert('Error al rechazar la inscripción. Revisa la consola.');
+        alert('Error al rechazar la inscripción.');
     }
 });
 
-// Cerrar Modal
+// 5. Cerrar modal
 document.querySelector('.cerrar-modal').addEventListener('click', () => {
     document.getElementById('modal-detalle').style.display = 'none';
     inscripcionSeleccionadaId = null;
+});
+
+// 6. Cerrar sesión
+document.getElementById('cerrar-sesion').addEventListener('click', () => {
+    auth.signOut().then(() => window.location.href = '../login.html');
 });

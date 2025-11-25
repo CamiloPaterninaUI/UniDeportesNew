@@ -1,142 +1,138 @@
 let torneoEditandoId = null;
+let accion = "crear"; // 'crear' o 'editar'
 
-auth.onAuthStateChanged(user => {
-    if (!user) {
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Verificar auth
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            window.location.href = './login.html';
+            return;
+        }
+        cargarTorneos();
+    });
+
+    const modal = document.getElementById('modal-torneo');
+    const form = document.getElementById('form-torneo');
+
+    // Abrir modal crear
+    document.getElementById('btn-crear-torneo').addEventListener('click', () => {
+        accion = "crear";
+        torneoEditandoId = null;
+        document.getElementById('titulo-modal').textContent = "Crear Torneo";
+        form.reset();
+        modal.style.display = 'flex';
+    });
+
+    // Cerrar modal
+    document.querySelector('.cerrar-modal').addEventListener('click', () => {
+        modal.style.display = 'none';
+        torneoEditandoId = null;
+    });
+
+    // Guardar torneo
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btnSubmit = e.submitter;
+        btnSubmit.disabled = true;
+
+        const torneoData = {
+            nombre: document.getElementById('nombre-torneo').value,
+            deporte: document.getElementById('deporte-torneo').value,
+            estado: document.getElementById('estado-torneo').value,
+            fechaInicio: document.getElementById('fecha-inicio').value,
+            fechaFin: document.getElementById('fecha-fin').value,
+            descripcion: document.getElementById('descripcion-torneo').value,
+            costo: Number(document.getElementById('costo-torneo').value),
+            fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            if (accion === "crear") {
+                torneoData.fechaCreacion = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('torneos').add(torneoData);
+                alert('Torneo creado exitosamente.');
+            } else if (accion === "editar" && torneoEditandoId) {
+                await db.collection('torneos').doc(torneoEditandoId).update(torneoData);
+                alert('Torneo actualizado exitosamente.');
+            }
+            modal.style.display = 'none';
+            form.reset();
+            torneoEditandoId = null;
+
+        } catch (error) {
+            console.error('Error al guardar torneo:', error);
+            alert('Error al guardar el torneo. Revisa la consola.');
+        } finally {
+            btnSubmit.disabled = false;
+        }
+    });
+
+    // Cerrar sesión
+    document.getElementById('cerrar-sesion').addEventListener('click', async () => {
+        await auth.signOut();
         window.location.href = './login.html';
-        return;
-    }
-    // Asumimos que el rol de admin se verificó en el login
-    cargarTorneos();
+    });
 });
 
-// 1. Manejar la creación de un nuevo torneo
-document.getElementById('form-crear-torneo').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btnSubmit = e.submitter;
-    btnSubmit.disabled = true;
-
-    const nuevoTorneo = {
-        nombre: document.getElementById('nombre-torneo').value,
-        deporte: document.getElementById('deporte-torneo').value,
-        estado: document.getElementById('estado-torneo').value,
-        fechaInicio: document.getElementById('fecha-inicio').value,
-        fechaFin: document.getElementById('fecha-fin').value,
-        descripcion: document.getElementById('descripcion-torneo').value,
-        fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    try {
-        await db.collection('torneos').add(nuevoTorneo);
-        alert('Torneo creado exitosamente.');
-        document.getElementById('form-crear-torneo').reset();
-    } catch (error) {
-        console.error('Error al crear torneo:', error);
-        alert('Error al crear el torneo. Revisa la consola.');
-    } finally {
-        btnSubmit.disabled = false;
-    }
-});
-
-// 2. Cargar y listar torneos (Uso de onSnapshot para tiempo real)
+// Cargar torneos en tiempo real
 function cargarTorneos() {
-    const listaCuerpo = document.getElementById('lista-torneos-cuerpo');
-    listaCuerpo.innerHTML = '<tr><td colspan="6" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando torneos...</td></tr>';
+    const tbody = document.getElementById('lista-torneos-cuerpo');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Cargando torneos...</td></tr>';
 
     db.collection('torneos').orderBy('fechaInicio', 'desc').onSnapshot(snapshot => {
-        listaCuerpo.innerHTML = ''; 
+        tbody.innerHTML = '';
         if (snapshot.empty) {
-            listaCuerpo.innerHTML = '<tr><td colspan="6" style="text-align: center;">No hay torneos registrados.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay torneos registrados.</td></tr>';
             return;
         }
 
         snapshot.forEach(doc => {
-            const torneo = doc.data();
-            const fila = listaCuerpo.insertRow();
-            
-            // Reemplazo de guiones por espacios y mayúsculas para mejor visual
-            const estadoDisplay = torneo.estado.charAt(0).toUpperCase() + torneo.estado.slice(1); 
-
+            const t = doc.data();
+            const fila = tbody.insertRow();
             fila.innerHTML = `
-                <td>${torneo.nombre}</td>
-                <td>${torneo.deporte}</td>
-                <td><span class="etiqueta ${torneo.estado}">${estadoDisplay}</span></td>
-                <td>${torneo.fechaInicio}</td>
-                <td>${torneo.fechaFin}</td>
+                <td>${t.nombre}</td>
+                <td>${t.deporte}</td>
+                <td>${t.fechaInicio}</td>
+                <td>${t.fechaFin}</td>
+                <td><span class="etiqueta ${t.estado}">${t.estado.charAt(0).toUpperCase() + t.estado.slice(1)}</span></td>
                 <td>
                     <button class="btn-accion btn-editar" data-id="${doc.id}"><i class="fas fa-edit"></i> Editar</button>
                     <button class="btn-accion btn-eliminar" data-id="${doc.id}"><i class="fas fa-trash"></i> Eliminar</button>
                 </td>
             `;
-
-            fila.querySelector('.btn-editar').addEventListener('click', () => abrirModalEdicion(doc.id, torneo));
-            fila.querySelector('.btn-eliminar').addEventListener('click', () => eliminarTorneo(doc.id, torneo.nombre));
+            fila.querySelector('.btn-editar').addEventListener('click', () => abrirModalEdicion(doc.id, t));
+            fila.querySelector('.btn-eliminar').addEventListener('click', () => eliminarTorneo(doc.id, t.nombre));
         });
     }, error => {
         console.error("Error cargando torneos:", error);
-        listaCuerpo.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al cargar los torneos.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Error al cargar los torneos.</td></tr>';
     });
 }
 
-// 3. Abrir modal de edición
-function abrirModalEdicion(id, torneo) {
+// Editar torneo
+function abrirModalEdicion(id, t) {
+    accion = "editar";
     torneoEditandoId = id;
-    document.getElementById('nombre-edicion').value = torneo.nombre;
-    document.getElementById('deporte-edicion').value = torneo.deporte;
-    document.getElementById('estado-edicion').value = torneo.estado;
-    document.getElementById('fecha-inicio-edicion').value = torneo.fechaInicio;
-    document.getElementById('fecha-fin-edicion').value = torneo.fechaFin;
-    document.getElementById('descripcion-edicion').value = torneo.descripcion;
-
-    document.getElementById('modal-edicion').style.display = 'flex';
+    document.getElementById('titulo-modal').textContent = "Editar Torneo";
+    document.getElementById('nombre-torneo').value = t.nombre;
+    document.getElementById('deporte-torneo').value = t.deporte;
+    document.getElementById('estado-torneo').value = t.estado;
+    document.getElementById('fecha-inicio').value = t.fechaInicio;
+    document.getElementById('fecha-fin').value = t.fechaFin;
+    document.getElementById('descripcion-torneo').value = t.descripcion;
+    document.getElementById('costo-torneo').value = t.costo || 0;
+    document.getElementById('modal-torneo').style.display = 'flex';
 }
 
-// 4. Guardar cambios
-document.getElementById('form-editar-torneo').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!torneoEditandoId) return;
-
-    const btnSubmit = e.submitter;
-    btnSubmit.disabled = true;
-
-    const datosActualizados = {
-        nombre: document.getElementById('nombre-edicion').value,
-        deporte: document.getElementById('deporte-edicion').value,
-        estado: document.getElementById('estado-edicion').value,
-        fechaInicio: document.getElementById('fecha-inicio-edicion').value,
-        fechaFin: document.getElementById('fecha-fin-edicion').value,
-        descripcion: document.getElementById('descripcion-edicion').value,
-        fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    try {
-        await db.collection('torneos').doc(torneoEditandoId).update(datosActualizados);
-        alert('Torneo actualizado exitosamente.');
-        document.getElementById('modal-edicion').style.display = 'none';
-        torneoEditandoId = null;
-    } catch (error) {
-        console.error('Error al actualizar torneo:', error);
-        alert('Error al actualizar el torneo. Revisa la consola.');
-    } finally {
-        btnSubmit.disabled = false;
-    }
-});
-
-// 5. Eliminar torneo
+// Eliminar torneo
 async function eliminarTorneo(id, nombre) {
-    if (confirm(`¿Está seguro de eliminar el torneo "${nombre}"? Esta acción eliminará el torneo y debería eliminar sus partidos e inscripciones asociadas (Requiere lógica adicional).`)) {
-        try {
-            await db.collection('torneos').doc(id).delete();
-            alert('Torneo eliminado.');
-            // Aquí se recomienda usar Cloud Functions para limpiar partidos e inscripciones.
-        } catch (error) {
-            console.error('Error al eliminar torneo:', error);
-            alert('Error al eliminar el torneo. Revisa la consola.');
-        }
+    if (!confirm(`¿Eliminar el torneo "${nombre}"?`)) return;
+    try {
+        await db.collection('torneos').doc(id).delete();
+        alert('Torneo eliminado.');
+    } catch (error) {
+        console.error('Error al eliminar torneo:', error);
+        alert('Error al eliminar torneo. Revisa la consola.');
     }
 }
-
-// Cerrar Modal
-document.querySelector('.cerrar-modal').addEventListener('click', () => {
-    document.getElementById('modal-edicion').style.display = 'none';
-    torneoEditandoId = null;
-});

@@ -1,4 +1,3 @@
-<!-- Contenido previo del archivo admin_dashboard.html... -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - UniTorneos</title>
 
-    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../css/style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <!-- Firebase SDK v8 (Sintaxis compatible con los scripts actuales) -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script>
-        // Configuración uniforme del proyecto
+        // Configuración Firebase v8
         const firebaseConfig = {
             apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
             authDomain: "proyecto-unibague.firebaseapp.com",
@@ -27,9 +25,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
     </script>
-    <!-- Contenido posterior del archivo admin_dashboard.html... -->
-<!-- [Contenido restante del archivo admin_dashboard.html] -->
-<!-- ... (El resto del código HTML se mantiene) ... -->
+</head>
+<body>
+    <!-- Barra de navegación -->
     <nav class="barra-navegacion">
         <div class="logo">UNIDEPORTES (Admin)</div>
         <ul>
@@ -38,25 +36,27 @@
         </ul>
     </nav>
 
+    <!-- Contenido principal -->
     <main class="contenido-panel">
         <h1>Bienvenido(a), <span id="nombre-admin">Administrador(a)</span></h1>
         <p class="subtitulo">Panel de control de UniTorneos.</p>
 
+        <!-- Tarjetas de funcionalidad -->
         <section class="tarjetas-funcionalidad">
             <a href="admin_gestionar_torneos.html" class="tarjeta tarjeta-torneos">
                 <div class="icono"><i class="fas fa-trophy"></i></div>
                 <h2>Gestionar Torneos</h2>
-                 <p>Creación, edición y eliminación de eventos deportivos.</p>
+                <p>Creación, edición y eliminación de eventos deportivos.</p>
             </a>
             <a href="admin_programar_partido.html" class="tarjeta tarjeta-partidos">
                 <div class="icono"><i class="fas fa-calendar-alt"></i></div>
                 <h2>Programar Partidos</h2>
-                 <p>Agenda encuentros entre equipos inscritos.</p>
+                <p>Agenda encuentros entre equipos inscritos.</p>
             </a>
             <a href="admin_gestionar_inscripciones.html" class="tarjeta tarjeta-inscripciones">
                 <div class="icono"><i class="fas fa-users"></i></div>
                 <h2>Gestionar Inscripciones</h2>
-                 <p>Revisa, aprueba o rechaza las solicitudes de equipos.</p>
+                <p>Revisa, aprueba o rechaza las solicitudes de equipos.</p>
             </a>
             <a href="admin_registrar_resultados.html" class="tarjeta tarjeta-resultados">
                 <div class="icono"><i class="fas fa-clipboard-list"></i></div>
@@ -67,11 +67,11 @@
             <a href="admin_ver_clasificaciones.html" class="tarjeta tarjeta-clasificacion">
                 <div class="icono"><i class="fas fa-sort-numeric-down"></i></div>
                 <h2>Ver Clasificaciones</h2>
-                 <p>Visualiza y actualiza la tabla de posiciones.</p>
+                <p>Visualiza y actualiza la tabla de posiciones.</p>
             </a>
-
         </section>
 
+        <!-- Estadísticas -->
         <section class="estadisticas">
             <h2>Resumen Rápido</h2>
             <div class="stats-container">
@@ -91,6 +91,7 @@
         </section>
     </main>
 
+    <!-- Footer -->
     <footer>
         <p><strong>UNIDEPORTES</strong> - Universidad de Ibagué</p>
     </footer>

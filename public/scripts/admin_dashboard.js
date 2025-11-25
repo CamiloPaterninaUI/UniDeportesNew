@@ -1,53 +1,61 @@
+// Verificar estado de autenticación
 auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        try {
-            // Verificar el rol del usuario
-            const doc = await db.collection('usuarios').doc(user.uid).get();
-            if (doc.exists && doc.data().rol === 'admin') {
-                document.getElementById('user-email').textContent = doc.data().nombre || user.email;
+    if (!user) {
+        // No autenticado
+        window.location.href = '../login.html';
+        return;
+    }
 
-                // Cargar estadísticas
-                cargarEstadisticas();
-            } else {
-                // No es administrador, cerrar sesión
-                console.log("Acceso denegado: No es administrador.");
-                auth.signOut();
-                window.location.href = './login.html'; 
-            }
-        } catch (error) {
-            console.error("Error al verificar perfil:", error);
-            auth.signOut();
-            window.location.href = './login.html';
+    try {
+        const docRef = await db.collection('usuarios').doc(user.uid).get();
+
+        if (docRef.exists && docRef.data().rol === 'administrador') {
+            // Mostrar nombre real del administrador
+            document.getElementById('nombre-admin').textContent = docRef.data().nombre || user.email;
+
+            // Cargar estadísticas
+            cargarEstadisticas();
+        } else {
+            console.warn("Acceso denegado: Rol incorrecto o inexistente.");
+            await auth.signOut();
+            window.location.href = '../login.html';
         }
-    } else {
-        // No autenticado, redirigir
-        window.location.href = './login.html';
+    } catch (error) {
+        console.error("Error al verificar perfil:", error);
+        await auth.signOut();
+        window.location.href = '../login.html';
     }
 });
 
-function cargarEstadisticas() {
-    // 1. Torneos Activos/Próximos
-    db.collection('torneos').where('estado', 'in', ['activo', 'proximo']).get().then(snapshot => {
-        document.getElementById('stat-torneos-activos').textContent = snapshot.size;
-    }).catch(e => console.error("Error Torneos Activos:", e));
-
-    // 2. Partidos Programados (pendientes de jugar)
-    db.collection('partidos').where('estado', '==', 'programado').get().then(snapshot => {
-        document.getElementById('stat-partidos-prog').textContent = snapshot.size;
-    }).catch(e => console.error("Error Partidos Prog:", e));
-
-    // 3. Usuarios Registrados (Estudiantes + Admin)
-    db.collection('usuarios').get().then(snapshot => {
-        document.getElementById('stat-usuarios').textContent = snapshot.size;
-    }).catch(e => console.error("Error Usuarios:", e));
-}
-
 // Funcionalidad de Cerrar Sesión
-document.getElementById('btn-logout').addEventListener('click', () => {
-    auth.signOut().then(() => {
-        window.location.href = './login.html'; 
-    }).catch((error) => {
-        console.error('Error al cerrar sesión:', error);
-        alert('Hubo un error al cerrar sesión.');
-    });
+document.getElementById('btn-cerrar-sesion').addEventListener('click', async () => {
+    try {
+        await auth.signOut();
+        window.location.href = '../login.html';
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
 });
+
+// Función para cargar estadísticas
+async function cargarEstadisticas() {
+    try {
+        // Torneos activos
+        const torneosSnap = await db.collection('torneos').get();
+        document.getElementById('stat-torneos-activos').textContent = torneosSnap.size || 0;
+
+        // Partidos programados
+        const partidosSnap = await db.collection('partidos').get();
+        document.getElementById('stat-partidos-prog').textContent = partidosSnap.size || 0;
+
+        // Usuarios registrados
+        const usuariosSnap = await db.collection('usuarios').get();
+        document.getElementById('stat-usuarios').textContent = usuariosSnap.size || 0;
+
+    } catch (error) {
+        console.error("Error al cargar estadísticas:", error);
+        document.getElementById('stat-torneos-activos').textContent = '-';
+        document.getElementById('stat-partidos-prog').textContent = '-';
+        document.getElementById('stat-usuarios').textContent = '-';
+    }
+}

@@ -1,115 +1,181 @@
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        try {
-            // 1. Cargar datos del estudiante y verificar rol
-            const doc = await db.collection('usuarios').doc(user.uid).get();
-            if (doc.exists && doc.data().rol === 'estudiante') {
-                const userData = doc.data();
-                
-                // Mostrar datos del perfil
-                document.getElementById('nombre-usuario').textContent = userData.nombre || 'N/A';
-                document.getElementById('documento').textContent = userData.documento || 'N/A';
-                document.getElementById('carrera').textContent = userData.carrera || 'N/A';
-                // Asumo que tienes campos 'telefono' y 'emergencia' en tu colección 'usuarios'
-                document.getElementById('telefono').textContent = userData.telefono || 'N/A'; 
-                document.getElementById('emergencia').textContent = userData.emergencia || 'N/A'; 
-                document.getElementById('activo').textContent = userData.activo ? 'Sí' : 'No';
+// Import Firebase 12 Modular
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
 
-                // 2. Cargar inscripciones y torneos
-                cargarMisInscripciones(user.uid);
-                cargarTorneosDisponibles();
+// Configuración Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCGYWe2CcXLo0LJUVZNDK5ZEeBtU2aVjxw",
+  authDomain: "proyecto-unibague.firebaseapp.com",
+  projectId: "proyecto-unibague",
+  storageBucket: "proyecto-unibague.firebasestorage.app",
+  messagingSenderId: "68419956684",
+  appId: "1:68419956684:web:cc4f156083423c489af769",
+  measurementId: "G-7CRB91JWB9"
+};
 
-            } else {
-                // Usuario autenticado pero no es estudiante, o rol desconocido.
-                console.log("Acceso denegado: No es estudiante.");
-                auth.signOut();
-                window.location.href = './login.html'; // Redirigir al login
-            }
-        } catch (error) {
-            console.error("Error al verificar perfil:", error);
-            auth.signOut();
-            window.location.href = './login.html';
-        }
-    } else {
-        // No autenticado, redirigir
-        window.location.href = './login.html';
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let usuarioActual = null;
+let equipoExistente = null;
+
+// ===========================
+// Protege la ruta y carga datos del estudiante
+// ===========================
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return window.location.href = '../login.html';
+  usuarioActual = user;
+
+  const docRef = doc(db, 'usuarios', user.uid);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists() || docSnap.data().rol !== 'estudiante') {
+    await signOut(auth);
+    return window.location.href = '../login.html';
+  }
+
+  const data = docSnap.data();
+  document.getElementById('nombre-estudiante').textContent = data.nombre || user.email;
+  document.getElementById('correo').textContent = data.correo || user.email;
+  document.getElementById('codigo').textContent = data.codigo || 'N/A';
+  document.getElementById('edad').textContent = data.edad || 'N/A';
+  document.getElementById('telefono').textContent = data.telefono || 'N/A';
+  document.getElementById('rol').textContent = data.rol || 'N/A';
+
+  await cargarEquipo();
+  await cargarTorneos();
+  await cargarPartidos();
+});
+
+// ===========================
+// Cerrar sesión
+// ===========================
+document.getElementById('cerrar-sesion').addEventListener('click', async () => {
+  await signOut(auth);
+  window.location.href = '../login.html';
+});
+
+// ===========================
+// Crear equipo
+// ===========================
+document.getElementById('crear-equipo').addEventListener('click', async () => {
+  const nombreEquipo = document.getElementById('nombre-equipo').value.trim();
+  const msg = document.getElementById('msg-equipo');
+
+  if (!nombreEquipo) {
+    msg.textContent = 'Debes ingresar el nombre del equipo';
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, 'equipos'), {
+      nombre: nombreEquipo,
+      creador: usuarioActual.uid,
+      jugadores: [{ uid: usuarioActual.uid, correo: usuarioActual.email }],
+      fechaCreacion: new Date()
+    });
+
+    msg.textContent = 'Equipo creado con éxito';
+    document.getElementById('nombre-equipo').value = '';
+    await cargarEquipo();
+  } catch(e) {
+    console.error(e);
+    msg.textContent = 'Error creando el equipo';
+  }
+});
+
+// ===========================
+// Cargar equipo
+// ===========================
+async function cargarEquipo() {
+  const contenedor = document.getElementById('info-equipo');
+  const btnInscripcionContainer = document.getElementById('btn-inscripcion-container');
+  contenedor.innerHTML = 'Cargando equipo...';
+  btnInscripcionContainer.innerHTML = '';
+
+  try {
+    const q = query(collection(db, 'equipos'), where('creador', '==', usuarioActual.uid));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      contenedor.textContent = 'No tienes equipos creados';
+      return;
     }
-});
 
-// 3. Listar las inscripciones del estudiante (como representante)
-function cargarMisInscripciones(usuarioUid) {
-    const listaDiv = document.getElementById('lista-mis-inscripciones');
-    listaDiv.innerHTML = '';
-    document.getElementById('mensaje-inscripciones').style.display = 'block';
+    equipoExistente = snapshot.docs[0].data();
+    equipoExistente.id = snapshot.docs[0].id;
 
-    db.collection('inscripciones')
-        .where('representanteUid', '==', usuarioUid) // Filtra por el UID del representante
-        .orderBy('fechaInscripcion', 'desc')
-        .onSnapshot(snapshot => {
-            document.getElementById('mensaje-inscripciones').style.display = 'none';
-
-            if (snapshot.empty) {
-                listaDiv.innerHTML = '<p class="mensaje-alerta">Aún no has inscrito ningún equipo como representante.</p>';
-                return;
-            }
-
-            snapshot.forEach(doc => {
-                const inscripcion = doc.data();
-                const tarjeta = document.createElement('div');
-                // Clase dinámica para estilos basados en el estado (aprobado, pendiente, rechazado)
-                tarjeta.className = `tarjeta-inscripcion estado-${inscripcion.estado}`; 
-                
-                tarjeta.innerHTML = `
-                    <h3>${inscripcion.equipo} <span class="estado-tag estado-${inscripcion.estado}">${inscripcion.estado.toUpperCase()}</span></h3>
-                    <p><strong>Torneo:</strong> ${inscripcion.torneoNombre}</p>
-                    <p><strong>Deporte:</strong> ${inscripcion.deporte}</p>
-                    <p><strong>Jugadores:</strong> ${inscripcion.jugadores ? inscripcion.jugadores.length : 0}</p>
-                `;
-                listaDiv.appendChild(tarjeta);
-            });
-        }, e => {
-            console.error("Error cargando inscripciones:", e);
-            document.getElementById('mensaje-inscripciones').textContent = 'Error al cargar tus inscripciones.';
-        });
+    contenedor.textContent = `Equipo: ${equipoExistente.nombre}`;
+    btnInscripcionContainer.innerHTML = `<a href="inscripcion.html" class="btn-primary-outline">Inscribirse a Torneo</a>`;
+  } catch(e) {
+    console.error(e);
+    contenedor.textContent = 'Error cargando equipo';
+  }
 }
 
-// 4. Listar torneos disponibles para inscripción
-function cargarTorneosDisponibles() {
-    const listaCuerpo = document.getElementById('lista-torneos-disponibles');
-    listaCuerpo.innerHTML = '<tr><td colspan="5" style="text-align: center;">Cargando torneos...</td></tr>';
+// ===========================
+// Cargar torneos
+// ===========================
+async function cargarTorneos() {
+  const tbody = document.getElementById('lista-torneos');
+  tbody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
 
-    // Buscar torneos en estado 'proximo' que permitan inscripciones
-    db.collection('torneos').where('estado', '==', 'proximo').orderBy('fechaInicio', 'asc').get().then(snapshot => {
-        listaCuerpo.innerHTML = '';
-        if (snapshot.empty) {
-            listaCuerpo.innerHTML = '<tr><td colspan="5" style="text-align: center;">No hay torneos abiertos actualmente para inscripción.</td></tr>';
-            return;
-        }
+  try {
+    const snapshot = await getDocs(collection(db, 'torneos'));
+    tbody.innerHTML = '';
+    if (snapshot.empty) {
+      tbody.innerHTML = '<tr><td colspan="5">No hay torneos abiertos</td></tr>';
+      return;
+    }
 
-        snapshot.forEach(doc => {
-            const torneo = doc.data();
-            const fila = listaCuerpo.insertRow();
-            fila.innerHTML = `
-                <td>${torneo.nombre}</td>
-                <td>${torneo.deporte}</td>
-                <td>${torneo.fechaInicio}</td>
-                <td><span class="etiqueta proximo">${torneo.estado.toUpperCase()}</span></td>
-                <td>
-                    <a href="./inscripcion.html?torneoId=${doc.id}" class="btn-accion btn-inscribir"><i class="fas fa-edit"></i> Inscribir</a>
-                </td>
-            `;
-        });
-    }).catch(e => {
-        console.error("Error cargando torneos:", e);
-        listaCuerpo.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error al cargar los torneos.</td></tr>';
+    snapshot.forEach(docu => {
+      const t = docu.data();
+      const fecha = t.fechaInicio?.toDate ? t.fechaInicio.toDate().toLocaleDateString('es-CO') : t.fechaInicio || 'Pendiente';
+      const botonInscribirse = equipoExistente
+        ? `<a href="inscripcion.html?torneoId=${docu.id}" class="btn-primary-outline">Inscribirse</a>`
+        : '';
+
+      tbody.innerHTML += `<tr>
+        <td>${t.nombre}</td>
+        <td>${t.deporte}</td>
+        <td>${fecha}</td>
+        <td>${t.estado}</td>
+        <td>${botonInscribirse}</td>
+      </tr>`;
     });
+  } catch(e) {
+    console.error(e);
+    tbody.innerHTML = '<tr><td colspan="5">Error cargando torneos</td></tr>';
+  }
 }
 
-// Funcionalidad de Cerrar Sesión
-document.getElementById('btn-logout').addEventListener('click', () => {
-    auth.signOut().then(() => {
-        window.location.href = './login.html'; 
-    }).catch(error => {
-        console.error('Error al cerrar sesión:', error);
+// ===========================
+// Cargar partidos
+// ===========================
+async function cargarPartidos() {
+  const tbody = document.getElementById('lista-partidos');
+  tbody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
+
+  try {
+    const snapshot = await getDocs(collection(db, 'partidos'));
+    tbody.innerHTML = '';
+    if (snapshot.empty) {
+      tbody.innerHTML = '<tr><td colspan="5">No hay partidos programados</td></tr>';
+      return;
+    }
+
+    snapshot.forEach(docu => {
+      const p = docu.data();
+      tbody.innerHTML += `<tr>
+        <td>${p.equipoA}</td><td>vs</td><td>${p.equipoB}</td><td>${p.fecha}</td><td>${p.hora}</td>
+      </tr>`;
     });
-});
+  } catch(e) {
+    console.error(e);
+    tbody.innerHTML = '<tr><td colspan="5">Error cargando partidos</td></tr>';
+  }
+}

@@ -1,40 +1,73 @@
+// scripts/index.js
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Verificar estado de autenticación para la navegación
-    auth.onAuthStateChanged(user => {
+    // 1. Estado de autenticación y navegación dinámica
+    auth.onAuthStateChanged(async (user) => {
         const navAuth = document.getElementById('nav-auth');
-        if (navAuth) {
-            navAuth.innerHTML = ''; // Limpiar el contenido actual
-            if (user) {
-                // Si hay un usuario logueado, mostrar el panel
-                navAuth.innerHTML = '<li><a href="./admin_dashboard.html">Panel</a></li><li><button id="btn-logout" class="btn-link">Cerrar Sesión</button></li>';
+        if (!navAuth) return;
+
+        navAuth.innerHTML = ''; // Limpiar contenido
+
+        if (user) {
+            // Obtener rol del usuario
+            try {
+                const doc = await db.collection('usuarios').doc(user.uid).get();
+                const rol = doc.exists ? doc.data().rol : 'estudiante'; // Default estudiante
+
+                let panelLink = '';
+                if (rol === 'administrador') panelLink = './administrador/admin_dashboard.html';
+                else panelLink = './estudiante/estudiante_dashboard.html';
+
+                navAuth.innerHTML = `
+                    <li><a href="${panelLink}">Panel</a></li>
+                    <li><button id="btn-logout" class="btn-link">Cerrar Sesión</button></li>
+                `;
+
                 document.getElementById('btn-logout').addEventListener('click', () => {
                     auth.signOut().then(() => {
-                        window.location.reload(); // Recargar la página para actualizar la nav
-                    }).catch(error => console.error('Error al cerrar sesión:', error));
+                        window.location.reload();
+                    }).catch(err => console.error('Error al cerrar sesión:', err));
                 });
-            } else {
-                // Si no hay usuario, mostrar Iniciar Sesión y Registro
-                navAuth.innerHTML = '<li><a href="login.html">Iniciar Sesión</a></li><li><a href="registro.html">Registrarse</a></li>';
+
+            } catch (error) {
+                console.error('Error al obtener rol:', error);
+                navAuth.innerHTML = `
+                    <li><a href="login.html">Iniciar Sesión</a></li>
+                    <li><a href="registro.html">Registrarse</a></li>
+                `;
             }
+        } else {
+            // Invitado
+            navAuth.innerHTML = `
+                <li><a href="login.html">Iniciar Sesión</a></li>
+                <li><a href="registro.html">Registrarse</a></li>
+            `;
         }
     });
 
-    // 2. Cargar Torneos Activos
+    // 2. Cargar torneos activos
     cargarTorneosActivos();
 
-    // 3. Cargar Próximos Encuentros
+    // 3. Cargar próximos encuentros
     cargarProximosEncuentros();
 });
 
+// Función: Cargar Torneos Activos
 function cargarTorneosActivos() {
     const tbody = document.querySelector('.tabla-datos:first-of-type tbody');
+    if (!tbody) return;
+
     tbody.innerHTML = '<tr><td colspan="5" class="sin-datos"><i class="fas fa-spinner fa-spin"></i> Cargando torneos...</td></tr>';
 
-    db.collection('torneos').where('estado', 'in', ['activo', 'proximo']).limit(5).get()
+    db.collection('torneos')
+        .where('estado', '==', 'activo')
+        .orderBy('fechaInicio', 'asc')
+        .limit(5)
+        .get()
         .then(snapshot => {
-            tbody.innerHTML = ''; // Limpiar
+            tbody.innerHTML = '';
             if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" class="sin-datos">No hay torneos en curso actualmente.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="sin-datos">No hay torneos activos.</td></tr>';
                 return;
             }
 
@@ -44,7 +77,7 @@ function cargarTorneosActivos() {
                 fila.innerHTML = `
                     <td>${torneo.nombre}</td>
                     <td>${torneo.deporte}</td>
-                    <td>Sede Principal</td>
+                    <td>${torneo.sede || 'Principal'}</td>
                     <td>${torneo.fechaInicio}</td>
                     <td>${torneo.fechaFin}</td>
                 `;
@@ -56,14 +89,20 @@ function cargarTorneosActivos() {
         });
 }
 
+// Función: Cargar Próximos Encuentros
 function cargarProximosEncuentros() {
     const tbody = document.querySelector('.tabla-datos:last-of-type tbody');
+    if (!tbody) return;
+
     tbody.innerHTML = '<tr><td colspan="5" class="sin-datos"><i class="fas fa-spinner fa-spin"></i> Cargando encuentros...</td></tr>';
 
-    // Buscar partidos programados, ordenados por fecha
-    db.collection('partidos').where('estado', '==', 'programado').orderBy('fecha', 'asc').limit(5).get()
+    db.collection('partidos')
+        .where('estado', '==', 'programado')
+        .orderBy('fecha', 'asc')
+        .limit(5)
+        .get()
         .then(snapshot => {
-            tbody.innerHTML = ''; // Limpiar
+            tbody.innerHTML = '';
             if (snapshot.empty) {
                 tbody.innerHTML = '<tr><td colspan="5" class="sin-datos">No hay partidos programados.</td></tr>';
                 return;
@@ -86,3 +125,6 @@ function cargarProximosEncuentros() {
             tbody.innerHTML = '<tr><td colspan="5" class="sin-datos error">Error al cargar partidos.</td></tr>';
         });
 }
+
+
+
