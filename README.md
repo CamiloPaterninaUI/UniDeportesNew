@@ -84,7 +84,7 @@ Consultar resultados
 
 👨‍💻 Autores
 
-Stiven Camacho — Product Owner
+Steven Camacho — Product Owner
 
 Alejandro Silva — Scrum Master
 
